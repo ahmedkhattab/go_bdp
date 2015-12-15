@@ -5,7 +5,7 @@ import (
   "os/exec"
   "log"
   "strings"
-  "fmt"
+  "strconv"
 )
 
 func kube(cmd string, args ...string) (*exec.Cmd) {
@@ -30,6 +30,14 @@ func pipe_commands(commands ...*exec.Cmd) ([]byte, error) {
       return nil, err
   }
   return final, nil
+}
+
+func Get_pods () string {
+  out, err := kube("get pods").Output()
+  if err != nil {
+			log.Fatal(err)
+  }
+  return string(out)
 }
 
 func Get_pod_status (pod string) string {
@@ -81,21 +89,47 @@ func Get_node (pod string) string {
   return string(out)
 }
 
-func Get_pending_pods () string {
+func Get_pending_pods () int {
   pods := kube("get pods")
-  pending := exec.Command("grep", "Pending")
+  pending := exec.Command("grep", "Running")
   count := exec.Command("wc", "-l")
   out, err := pipe_commands(pods, pending, count)
   if err != nil {
-          log.Fatal(err)
-      }
+      log.Fatal(err)
+  }
+  num, err := strconv.Atoi(strings.TrimSpace(string(out)))
+  if err != nil {
+      log.Fatal(err)
+  }
+  return num
+}
+
+func Get_remaining_pods (prefix string) int {
+  pods := kube("get pods", "--no-headers")
+  grep_prefix := exec.Command("grep", prefix)
+  count := exec.Command("wc", "-l")
+  out, err := pipe_commands(pods, grep_prefix, count)
+  if err != nil {
+      log.Fatal(err)
+  }
+  num, err := strconv.Atoi(strings.TrimSpace(string(out)))
+  if err != nil {
+      log.Fatal(err)
+  }
+  return num
+}
+func Delete_resource (r_type string, r_name string) string {
+  out, err := kube("delete", r_type, r_name).Output()
+  if err != nil {
+      log.Fatal(err)
+  }
   return string(out)
 }
 
 func Create_resource (path string) string {
-    out, err := kube("create", "-f", path).Output()
-    if err != nil {
-            log.Fatal(err)
-        }
-    return string(out)
+  out, err := kube("create", "-f", path).Output()
+  if err != nil {
+    log.Fatal(err)
+  }
+  return string(out)
 }
