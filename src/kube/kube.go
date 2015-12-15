@@ -81,8 +81,8 @@ func Get_pod_public_ip (pod string) string {
   return string(out)
 }
 
-func Get_node (pod string) string {
-  out, err := kube("get pod", pod, "-o template", "--template={{.status.hostIP}}").Output()
+func Get_service_ip (service string) string {
+  out, err := kube("get service", service, "-o=template", "--template={{.spec.clusterIP}}").Output()
   if err != nil {
 			log.Fatal(err)
   }
@@ -118,18 +118,20 @@ func Get_remaining_pods (prefix string) int {
   }
   return num
 }
+
 func Delete_resource (r_type string, r_name string) string {
   out, err := kube("delete", r_type, r_name).Output()
   if err != nil {
-      log.Fatal(err)
+      log.Println(err)
   }
   return string(out)
 }
 
 func Create_resource (path string) string {
   out, err := kube("create", "-f", path).Output()
-  if err != nil {
-    log.Fatal(err)
-  }
   return string(out)
+}
+
+func Exec_on_pod (pod string, command string) {
+  kube("exec", pod, "--", command)
 }
