@@ -6,6 +6,8 @@ import (
   "log"
   "strings"
   "strconv"
+  "bytes"
+  "fmt"
 )
 
 func kube(cmd string, args ...string) (*exec.Cmd) {
@@ -25,9 +27,13 @@ func pipe_commands(commands ...*exec.Cmd) ([]byte, error) {
       command.Start()
       commands[i + 1].Stdin = out
   }
-  final, err := commands[len(commands) - 1].Output()
+  var stderr bytes.Buffer
+  cmd := commands[len(commands) - 1]
+  cmd.Stderr = &stderr
+  final, err := cmd.Output()
   if err != nil {
-      return nil, err
+    fmt.Println(stderr.String())
+    return nil, err
   }
   return final, nil
 }
@@ -38,6 +44,17 @@ func Get_pods () string {
 			log.Fatal(err)
   }
   return string(out)
+}
+
+func Get_pod_names (prefix string) []string {
+  pods := kube("get pods", "--no-headers")
+  cut := exec.Command("cut", "-d", " ", "-f", "1")
+  grep := exec.Command("grep", "amb-slave")
+  out, err := pipe_commands(pods, cut, grep)
+  if err != nil {
+      log.Fatal(err)
+  }
+  return strings.Split(string(out), "\n")
 }
 
 func Get_pod_status (pod string) string {
@@ -91,7 +108,7 @@ func Get_service_ip (service string) string {
 
 func Get_pending_pods () int {
   pods := kube("get pods")
-  pending := exec.Command("grep", "Running")
+  pending := exec.Command("grep", "Pending")
   count := exec.Command("wc", "-l")
   out, err := pipe_commands(pods, pending, count)
   if err != nil {
@@ -129,9 +146,20 @@ func Delete_resource (r_type string, r_name string) string {
 
 func Create_resource (path string) string {
   out, err := kube("create", "-f", path).Output()
+  if err != nil {
+      log.Println(err)
+  }
   return string(out)
 }
 
-func Exec_on_pod (pod string, command string) {
-  kube("exec", pod, "--", command)
+func Exec_on_pod (pod string, command string) string {
+    cmd := kube("exec", pod, "--", "/bin/sh", "-c", command)
+    var stderr bytes.Buffer
+    cmd.Stderr = &stderr
+    out, err := cmd.Output()
+    if err != nil {
+        log.Println(err)
+        log.Println(stderr.String())
+    }
+    return string(out)
 }

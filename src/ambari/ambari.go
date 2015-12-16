@@ -61,10 +61,38 @@ func Start() {
   }
 
   time.Sleep(10 * time.Second)
-  fmt.Printf("Ambari: registering consul services")
+  fmt.Println("Ambari: registering consul services")
 
   ambari_service_ip := kube.Get_service_ip("ambari")
-  cmd := fmt.Sprintf("/bin/sh -c 'curl -X PUT -d '{\"Node\": \"ambari-8080\",\"Address\": \"%s\",\"Service\": {\"Service\": \"ambari-8080\"}}' http://$CONSUL_SERVICE_HOST:8500/v1/catalog/register'", ambari_service_ip)
-  fmt.Printf(cmd)
-  kube.Exec_on_pod("amb-server.service.consul", cmd)
+  cmd := fmt.Sprintf("'curl -X PUT -d \"{\\\"Node\\\": \\\"ambari-8080\\\",\\\"Address\\\": \\\"%s\\\",\\\"Service\\\": {\\\"Service\\\": \\\"ambari-8080\\\"}}\" http://$CONSUL_SERVICE_HOST:8500/v1/catalog/register'",
+    ambari_service_ip)
+  fmt.Println(kube.Exec_on_pod("amb-server.service.consul", cmd))
+  cmd = fmt.Sprintf("'curl -X PUT -d \"{\\\"Node\\\": \\\"amb-server\\\",\\\"Address\\\": \\\"%s\\\",\\\"Service\\\": {\\\"Service\\\": \\\"amb-server\\\"}}\" http://$CONSUL_SERVICE_HOST:8500/v1/catalog/register'",
+      ambari_service_ip)
+  fmt.Println(kube.Exec_on_pod("amb-server.service.consul", cmd))
+
+  fmt.Println("Ambari: launching ambari slaves")
+  kube.Create_resource("~/BDP/Ambari/ambari-slave.json")
+  for {
+    pending := kube.Get_pending_pods()
+    if pending == 0 {
+      fmt.Println()
+      break
+    } else {
+      fmt.Printf(".")
+      time.Sleep(5 * time.Second)
+    }
+  }
+
+  fmt.Println("Ambari: creating ambari cluster using blueprint: multi-node-hdfs")
+  kube.Create_resource("~/BDP/Ambari/ambari-shell.json")
+
+  slave_pods := kube.Get_pod_names("amb-slave")
+  for v := 0; v < len(slave_pods); v++ {
+    if slave_pods[v] != "" {
+     cmd = "'curl -X PUT -d \"{\\\"Node\\\": \\\"$(hostname)\\\",\\\"Address\\\": \\\"$(hostname -I)\\\",\\\"Service\\\": {\\\"Service\\\": \\\"$(hostname)\\\"}}\" http://$CONSUL_SERVICE_HOST:8500/v1/catalog/register'"
+     fmt.Println(kube.Exec_on_pod(slave_pods[v], cmd))
+   }
+  }
+
 }

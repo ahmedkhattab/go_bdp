@@ -20,6 +20,7 @@ func main() {
   fmt.Println(kube.Get_pod_public_ip("amb-server.service.consul"))
   */
   ambari.Start()
-  fmt.Println(kube.Get_pods())
+  fmt.Println(kube.Get_pod_public_ip("amb-server.service.consul"))
+
 
 }
