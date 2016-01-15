@@ -1,31 +1,29 @@
 package main
 
 import (
-	"ambari"
-	"cassandra"
-	"flag"
 	"fmt"
 	"kube"
 	"os"
-	"rabbitmq"
-	"spark"
+	"os/exec"
+
+	"github.com/spf13/viper"
 )
 
 func main() {
-	os.Setenv("KUBE", "/home/khattab/kubernetes-1.1.2/cluster/kubectl.sh")
-	/*
-	  fmt.Println(kube.Get_remaining_pods("amb"))
-	  fmt.Println(kube.Get_pending_pods())
+	viper.SetConfigType("yaml") // or viper.SetConfigType("YAML")
+	viper.SetConfigName("config")
+	viper.AddConfigPath("$GOPATH/bin")
+	err := viper.ReadInConfig() // Find and read the config file
+	if err != nil {             // Handle errors reading the config file
+		panic(fmt.Errorf("Fatal error config file: %s \n", err))
+	}
 
-	  fmt.Println(kube.Get_pod_ip("amb-server.service.consul"))
-	  fmt.Println(kube.Get_pod_host_ip("amb-server.service.consul"))
-	  fmt.Println(kube.Get_pod_status("amb-server.service.consul"))
-	  fmt.Println(kube.Get_pod_public_ip("amb-server.service.consul"))
-	*/
-	var verbose bool
-	flag.BoolVar(&verbose, "v", false, "")
+	setEnvironment()
+	startCluster()
 
-	ambari.Start()
+	fmt.Println(viper.GetString("KUBE_PATH"))
+
+	/*ambari.Start()
 	spark.Start()
 	rabbitmq.Start()
 	cassandra.Start()
@@ -36,5 +34,27 @@ func main() {
 	fmt.Printf("Cassandra accessible through %s:31317\n", kube.PodPublicIP("spark-master"))
 
 	fmt.Println(kube.GetPods())
+	*/
+}
 
+func setEnvironment() {
+	os.Setenv("KUBERNETES_PROVIDER", viper.GetString("KUBERNETES_PROVIDER"))
+	os.Setenv("KUBE_AWS_ZONE", viper.GetString("KUBE_AWS_ZONE"))
+	os.Setenv("NUM_MINIONS", viper.GetString("NUM_MINIONS"))
+	os.Setenv("MINION_SIZE", viper.GetString("MINION_SIZE"))
+	os.Setenv("MASTER_SIZE", viper.GetString("MASTER_SIZE"))
+	os.Setenv("AWS_S3_REGION", viper.GetString("AWS_S3_REGION"))
+	os.Setenv("INSTANCE_PREFIX", viper.GetString("INSTANCE_PREFIX"))
+	os.Setenv("AWS_S3_BUCKET", viper.GetString("AWS_S3_BUCKET"))
+	os.Setenv("MINION_ROOT_DISK_SIZE", viper.GetString("MINION_ROOT_DISK_SIZE"))
+	os.Setenv("MASTER_ROOT_DISK_SIZE", viper.GetString("MASTER_ROOT_DISK_SIZE"))
+}
+
+func startCluster() bool {
+	if kube.ClusterIsUp() {
+		return true
+	} else {
+		exec.Command("sh", "-c", viper.GetString("KUBE_PATH")+"cluster/kube-up.sh")
+		return true
+	}
 }

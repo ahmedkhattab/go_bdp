@@ -4,18 +4,19 @@ import (
 	"bytes"
 	"fmt"
 	"log"
-	"os"
 	"os/exec"
 	"strconv"
 	"strings"
+
+	"github.com/spf13/viper"
 )
 
 func kube(cmd string, args ...string) *exec.Cmd {
 	if len(args) > 0 {
 		args_s := strings.Join(args, " ")
-		return exec.Command("sh", "-c", os.Getenv("KUBE")+" "+cmd+" "+args_s)
+		return exec.Command("sh", "-c", viper.GetString("KUBE_PATH")+"/cluster/kubectl.sh"+" "+cmd+" "+args_s)
 	}
-	return exec.Command("sh", "-c", os.Getenv("KUBE")+" "+cmd)
+	return exec.Command("sh", "-c", viper.GetString("KUBE_PATH")+"/cluster/kubectl.sh"+" "+cmd)
 }
 
 func pipeCommands(commands ...*exec.Cmd) ([]byte, error) {
@@ -38,6 +39,21 @@ func pipeCommands(commands ...*exec.Cmd) ([]byte, error) {
 	return final, nil
 }
 
+func ClusterInfo() string {
+	out, err := kube("cluster-info").Output()
+	if err != nil {
+		log.Fatal(err)
+	}
+	return string(out)
+}
+
+func ClusterIsUp() bool {
+	_, err := kube("cluster-info").Output()
+	if err != nil {
+		return false
+	}
+	return true
+}
 func GetPods() string {
 	out, err := kube("get pods").Output()
 	if err != nil {
