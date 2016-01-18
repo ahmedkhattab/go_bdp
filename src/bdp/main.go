@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"kube"
 	"os"
+	"flag"
 	"os/exec"
-
 	"github.com/spf13/viper"
 )
 
@@ -17,9 +17,19 @@ func main() {
 	if err != nil {             // Handle errors reading the config file
 		panic(fmt.Errorf("Fatal error config file: %s \n", err))
 	}
+	stopFlag := flag.Bool("stop", false, "stop the cluster")
+	startFlag := flag.Bool("start", false, "start the cluster")
 
+  flag.Parse()
 	setEnvironment()
-	startCluster()
+	if(*stopFlag) {
+		stopCluster()
+		return
+	}
+	if(*startFlag) {
+		startCluster()
+		return
+	}
 
 	fmt.Println(viper.GetString("KUBE_PATH"))
 
@@ -54,7 +64,24 @@ func startCluster() bool {
 	if kube.ClusterIsUp() {
 		return true
 	} else {
-		exec.Command("sh", "-c", viper.GetString("KUBE_PATH")+"cluster/kube-up.sh")
+		fmt.Println("here1")
+		cmd := exec.Command("sh", "-c", viper.GetString("KUBE_PATH")+"/cluster/kube-up.sh")
+		cmd.Stderr = os.Stderr
+		cmd.Stdout = os.Stdout
+		cmd.Run()
+		return true
+	}
+}
+
+func stopCluster() bool {
+	if kube.ClusterIsUp() {
+		fmt.Println("here")
+		cmd := exec.Command("sh", "-c", viper.GetString("KUBE_PATH")+"/cluster/kube-down.sh")
+		cmd.Stderr = os.Stderr
+		cmd.Stdout = os.Stdout
+		cmd.Run()
+		return true
+	} else {
 		return true
 	}
 }
