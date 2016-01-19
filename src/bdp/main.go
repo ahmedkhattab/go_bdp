@@ -1,50 +1,49 @@
 package main
 
 import (
+	"ambari"
+	"cassandra"
 	"fmt"
 	"kube"
+	"log"
 	"os"
-	"flag"
 	"os/exec"
+	"rabbitmq"
+	"spark"
+
 	"github.com/spf13/viper"
 )
 
 func main() {
 	viper.SetConfigType("yaml") // or viper.SetConfigType("YAML")
 	viper.SetConfigName("config")
-	viper.AddConfigPath("$GOPATH/bin")
+	viper.AddConfigPath(".")
 	err := viper.ReadInConfig() // Find and read the config file
 	if err != nil {             // Handle errors reading the config file
-		panic(fmt.Errorf("Fatal error config file: %s \n", err))
+		log.Fatalf("Error loading config file: %s \n", err)
 	}
-	stopFlag := flag.Bool("stop", false, "stop the cluster")
-	startFlag := flag.Bool("start", false, "start the cluster")
 
-  flag.Parse()
 	setEnvironment()
-	if(*stopFlag) {
-		stopCluster()
+
+	if len(os.Args) == 1 {
+		fmt.Println("usage: bdp <command> [<args>]")
+		fmt.Println("Commands: ")
+		fmt.Println("\tstart   starts the cluster")
+		fmt.Println("\tstop    stops the cluster")
+		fmt.Println("\tdeploy  deploys bdp components on a running cluster")
 		return
 	}
-	if(*startFlag) {
+	switch os.Args[1] {
+	case "start":
 		startCluster()
-		return
+	case "stop":
+		stopCluster()
+	case "deploy":
+		deployComponents()
+	default:
+		fmt.Printf("%q is not valid command.\n", os.Args[1])
+		os.Exit(2)
 	}
-
-	fmt.Println(viper.GetString("KUBE_PATH"))
-
-	/*ambari.Start()
-	spark.Start()
-	rabbitmq.Start()
-	cassandra.Start()
-
-	fmt.Printf("Ambari UI accessible through http://%s:31313\n", kube.PodPublicIP("amb-server.service.consul"))
-	fmt.Printf("Spark UI accessible through http://%s:31314\n", kube.PodPublicIP("spark-master"))
-	fmt.Printf("RabbitMQ UI accessible through http://%s:31316\n", kube.PodPublicIP("spark-master"))
-	fmt.Printf("Cassandra accessible through %s:31317\n", kube.PodPublicIP("spark-master"))
-
-	fmt.Println(kube.GetPods())
-	*/
 }
 
 func setEnvironment() {
@@ -62,26 +61,50 @@ func setEnvironment() {
 
 func startCluster() bool {
 	if kube.ClusterIsUp() {
-		return true
-	} else {
-		fmt.Println("here1")
-		cmd := exec.Command("sh", "-c", viper.GetString("KUBE_PATH")+"/cluster/kube-up.sh")
-		cmd.Stderr = os.Stderr
-		cmd.Stdout = os.Stdout
-		cmd.Run()
+		fmt.Println("Cluster is already running")
 		return true
 	}
+	cmd := exec.Command("sh", "-c", viper.GetString("KUBE_PATH")+"/cluster/kube-up.sh")
+	cmd.Stderr = os.Stderr
+	cmd.Stdout = os.Stdout
+	err := cmd.Run()
+	if err != nil {
+		log.Fatal(err)
+		return false
+	}
+	return true
 }
 
 func stopCluster() bool {
 	if kube.ClusterIsUp() {
-		fmt.Println("here")
 		cmd := exec.Command("sh", "-c", viper.GetString("KUBE_PATH")+"/cluster/kube-down.sh")
 		cmd.Stderr = os.Stderr
 		cmd.Stdout = os.Stdout
-		cmd.Run()
+		err := cmd.Run()
+		if err != nil {
+			log.Fatal(err)
+			return false
+		}
 		return true
+	}
+	fmt.Println("Cluster is already stopped")
+	return true
+}
+
+func deployComponents() {
+	if kube.ClusterIsUp() {
+		ambari.Start()
+		spark.Start()
+		rabbitmq.Start()
+		cassandra.Start()
+
+		fmt.Printf("Ambari UI accessible through http://%s:31313\n", kube.PodPublicIP("amb-server.service.consul"))
+		fmt.Printf("Spark UI accessible through http://%s:31314\n", kube.PodPublicIP("spark-master"))
+		fmt.Printf("RabbitMQ UI accessible through http://%s:31316\n", kube.PodPublicIP("spark-master"))
+		fmt.Printf("Cassandra accessible through %s:31317\n", kube.PodPublicIP("spark-master"))
+
+		fmt.Println(kube.GetPods())
 	} else {
-		return true
+		fmt.Println("Cluster is not running, run bdp start first")
 	}
 }

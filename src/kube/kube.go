@@ -13,8 +13,8 @@ import (
 
 func kube(cmd string, args ...string) *exec.Cmd {
 	if len(args) > 0 {
-		args_s := strings.Join(args, " ")
-		return exec.Command("sh", "-c", viper.GetString("KUBE_PATH")+"/cluster/kubectl.sh"+" "+cmd+" "+args_s)
+		argsJoined := strings.Join(args, " ")
+		return exec.Command("sh", "-c", viper.GetString("KUBE_PATH")+"/cluster/kubectl.sh"+" "+cmd+" "+argsJoined)
 	}
 	return exec.Command("sh", "-c", viper.GetString("KUBE_PATH")+"/cluster/kubectl.sh"+" "+cmd)
 }
@@ -39,6 +39,7 @@ func pipeCommands(commands ...*exec.Cmd) ([]byte, error) {
 	return final, nil
 }
 
+//ClusterInfo executes kubectl cluster-info
 func ClusterInfo() string {
 	out, err := kube("cluster-info").Output()
 	if err != nil {
@@ -47,6 +48,7 @@ func ClusterInfo() string {
 	return string(out)
 }
 
+//ClusterIsUp checks if a kubernetes cluster is up and running
 func ClusterIsUp() bool {
 	_, err := kube("cluster-info").Output()
 	if err != nil {
@@ -54,6 +56,8 @@ func ClusterIsUp() bool {
 	}
 	return true
 }
+
+//GetPods executes kubectl get pods
 func GetPods() string {
 	out, err := kube("get pods").Output()
 	if err != nil {
@@ -62,6 +66,7 @@ func GetPods() string {
 	return string(out)
 }
 
+//PodNames returns the names of all pods starting with certain prefix
 func PodNames(prefix string) []string {
 	pods := kube("get pods", "--no-headers")
 	cut := exec.Command("cut", "-d", " ", "-f", "1")
@@ -73,6 +78,7 @@ func PodNames(prefix string) []string {
 	return strings.Split(string(out), "\n")
 }
 
+//PodStatus returns the status of the input pod
 func PodStatus(pod string) string {
 	out, err := kube("get pod", pod, "-o template", "--template={{.status.phase}}").Output()
 	if err != nil {
@@ -81,6 +87,7 @@ func PodStatus(pod string) string {
 	return string(out)
 }
 
+//PodIP returns the ip of the input pod
 func PodIP(pod string) string {
 	out, err := kube("get pod", pod, "-o template", "--template={{.status.podIP}}").Output()
 	if err != nil {
@@ -89,6 +96,7 @@ func PodIP(pod string) string {
 	return string(out)
 }
 
+//PodHostIP returns the ip of the host of the input pod
 func PodHostIP(pod string) string {
 	out, err := kube("get pod", pod, "-o template", "--template={{.status.hostIP}}").Output()
 	if err != nil {
@@ -97,6 +105,7 @@ func PodHostIP(pod string) string {
 	return string(out)
 }
 
+//PodHostName returns the node name of the input pod
 func PodHostName(pod string) string {
 	out, err := kube("get pod", pod, "-o template", "--template={{.spec.nodeName}}").Output()
 	if err != nil {
@@ -105,9 +114,10 @@ func PodHostName(pod string) string {
 	return string(out)
 }
 
+//PodPublicIP returns the public ip of the host of the input pod
 func PodPublicIP(pod string) string {
-	host_name := PodHostName(pod)
-	out, err := kube("get node", host_name, "-o template", "'--template={{(index .status.addresses 2).address}}'").Output()
+	hostName := PodHostName(pod)
+	out, err := kube("get node", hostName, "-o template", "'--template={{(index .status.addresses 2).address}}'").Output()
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -139,9 +149,9 @@ func PendingPods() int {
 
 func RemainingPods(prefix string) int {
 	pods := kube("get pods", "--no-headers")
-	grep_prefix := exec.Command("grep", prefix)
+	grepPrefix := exec.Command("grep", prefix)
 	count := exec.Command("wc", "-l")
-	out, err := pipeCommands(pods, grep_prefix, count)
+	out, err := pipeCommands(pods, grepPrefix, count)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -152,8 +162,8 @@ func RemainingPods(prefix string) int {
 	return num
 }
 
-func DeleteResource(r_type string, r_name string) string {
-	cmd := kube("delete", r_type, r_name)
+func DeleteResource(rType string, rName string) string {
+	cmd := kube("delete", rType, rName)
 	var stderr bytes.Buffer
 	cmd.Stderr = &stderr
 	out, err := cmd.Output()
@@ -171,6 +181,14 @@ func CreateResource(path string) string {
 	return string(out)
 }
 
+func ScaleController(rcName string, size int) string {
+	replicasParam := fmt.Sprintf("--replicas=%d", size)
+	out, err := kube("scale", replicasParam, "rc", rcName).Output()
+	if err != nil {
+		log.Println(err)
+	}
+	return string(out)
+}
 func ExecOnPod(pod string, command string) string {
 	cmd := kube("exec", pod, "--", "/bin/sh", "-c", command)
 	var stderr bytes.Buffer

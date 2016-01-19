@@ -5,6 +5,8 @@ import (
 	"kube"
 	"log"
 	"time"
+
+	"github.com/spf13/viper"
 )
 
 func CleanUp() {
@@ -76,6 +78,10 @@ func Start() {
 		} else {
 			time.Sleep(5 * time.Second)
 		}
+	}
+
+	if viper.GetInt("AMBARI_NODES") != 3 {
+		kube.ScaleController("amb-slave-controller", viper.GetInt("AMBARI_NODES"))
 	}
 
 	log.Println("Ambari: creating ambari cluster using blueprint: multi-node-hdfs")

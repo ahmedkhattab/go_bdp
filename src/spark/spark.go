@@ -4,6 +4,8 @@ import (
 	"kube"
 	"log"
 	"time"
+
+	"github.com/spf13/viper"
 )
 
 func CleanUp() {
@@ -49,6 +51,10 @@ func Start() {
 		} else {
 			time.Sleep(5 * time.Second)
 		}
+	}
+
+	if viper.GetInt("SPARK_WORKERS") != 3 {
+		kube.ScaleController("spark-worker-controller", viper.GetInt("SPARK_WORKERS"))
 	}
 
 	log.Println("Spark: Launching spark driver")

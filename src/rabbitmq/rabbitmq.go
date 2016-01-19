@@ -4,6 +4,8 @@ import (
 	"kube"
 	"log"
 	"time"
+
+	"github.com/spf13/viper"
 )
 
 func CleanUp() {
@@ -36,5 +38,8 @@ func Start() {
 		} else {
 			time.Sleep(5 * time.Second)
 		}
+	}
+	if viper.GetInt("RABBITMQ_NODES") != 2 {
+		kube.ScaleController("rabbitmq-controller", viper.GetInt("RABBITMQ_NODES"))
 	}
 }
