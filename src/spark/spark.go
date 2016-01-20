@@ -3,6 +3,7 @@ package spark
 import (
 	"kube"
 	"log"
+	"os"
 	"time"
 
 	"github.com/spf13/viper"
@@ -28,8 +29,8 @@ func Start() {
 	CleanUp()
 
 	log.Println("Spark: Launching spark master")
-	kube.CreateResource("~/BDP/spark/spark-master.json")
-	kube.CreateResource("~/BDP/spark/spark-master-service.json")
+	kube.CreateResource(os.Getenv("BDP_CONFIG_DIR") + "/spark/spark-master.json")
+	kube.CreateResource(os.Getenv("BDP_CONFIG_DIR") + "/spark/spark-master-service.json")
 
 	log.Println("Spark: Waiting for spark master to start...")
 	for {
@@ -42,8 +43,11 @@ func Start() {
 	}
 
 	log.Println("Spark: Launching spark workers")
-	kube.CreateResource("~/BDP/spark/spark-worker-controller.json")
-	log.Println("Spark: Waiting for 3 spark workers to start...")
+	kube.CreateResource(os.Getenv("BDP_CONFIG_DIR") + "/spark/spark-worker-controller.json")
+	if viper.GetInt("SPARK_WORKERS") != 3 {
+		kube.ScaleController("spark-worker-controller", viper.GetInt("SPARK_WORKERS"))
+	}
+	log.Println("Spark: Waiting for spark workers to start...")
 	for {
 		pending := kube.PendingPods()
 		if pending == 0 {
@@ -53,11 +57,7 @@ func Start() {
 		}
 	}
 
-	if viper.GetInt("SPARK_WORKERS") != 3 {
-		kube.ScaleController("spark-worker-controller", viper.GetInt("SPARK_WORKERS"))
-	}
-
 	log.Println("Spark: Launching spark driver")
-	kube.CreateResource("~/BDP/spark/spark-driver.json")
+	kube.CreateResource(os.Getenv("BDP_CONFIG_DIR") + "/spark/spark-driver.json")
 
 }

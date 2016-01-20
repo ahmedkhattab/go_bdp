@@ -10,11 +10,13 @@ import (
 	"os/exec"
 	"rabbitmq"
 	"spark"
+	"util"
 
 	"github.com/spf13/viper"
 )
 
 func main() {
+	os.Setenv("BDP_CONFIG_DIR", "/home/khattab/BDP")
 	viper.SetConfigType("yaml") // or viper.SetConfigType("YAML")
 	viper.SetConfigName("config")
 	viper.AddConfigPath(".")
@@ -30,6 +32,7 @@ func main() {
 		fmt.Println("Commands: ")
 		fmt.Println("\tstart   starts the cluster")
 		fmt.Println("\tstop    stops the cluster")
+		fmt.Println("\treset   removes all deployed components")
 		fmt.Println("\tdeploy  deploys bdp components on a running cluster")
 		return
 	}
@@ -40,6 +43,10 @@ func main() {
 		stopCluster()
 	case "deploy":
 		deployComponents()
+	case "reset":
+		cleanUpCluster()
+	case "test":
+		test()
 	default:
 		fmt.Printf("%q is not valid command.\n", os.Args[1])
 		os.Exit(2)
@@ -107,4 +114,25 @@ func deployComponents() {
 	} else {
 		fmt.Println("Cluster is not running, run bdp start first")
 	}
+}
+
+func cleanUpCluster() {
+	if kube.ClusterIsUp() {
+		ambari.CleanUp()
+		spark.CleanUp()
+		rabbitmq.CleanUp()
+		cassandra.CleanUp()
+	}
+}
+
+func test() {
+	rc := util.LoadRC("/home/khattab/BDP/Ambari/ambari-slave.json")
+	util.SaveRC("amb.json", rc)
+
+	rc = util.LoadRC("/home/khattab/BDP/spark/spark-worker-controller.json")
+	util.SaveRC("spark.json", rc)
+
+	rc = util.LoadRC("/home/khattab/BDP/rabbitmq/rabbitmq-controller.json")
+	util.SaveRC("rabbitmq.json", rc)
+
 }

@@ -3,6 +3,7 @@ package rabbitmq
 import (
 	"kube"
 	"log"
+	"os"
 	"time"
 
 	"github.com/spf13/viper"
@@ -27,9 +28,11 @@ func Start() {
 	CleanUp()
 
 	log.Println("Rabbitmq: Launching rabbitmq")
-	kube.CreateResource("~/BDP/rabbitmq/rabbitmq-controller.json")
-	kube.CreateResource("~/BDP/rabbitmq/rabbitmq-service.json")
-
+	kube.CreateResource(os.Getenv("BDP_CONFIG_DIR") + "/rabbitmq/rabbitmq-controller.json")
+	kube.CreateResource(os.Getenv("BDP_CONFIG_DIR") + "/rabbitmq/rabbitmq-service.json")
+	if viper.GetInt("RABBITMQ_NODES") != 2 {
+		kube.ScaleController("rabbitmq-controller", viper.GetInt("RABBITMQ_NODES"))
+	}
 	log.Println("Rabbitmq: Waiting for Rabbitmq pods to start...")
 	for {
 		pending := kube.PendingPods()
@@ -39,7 +42,5 @@ func Start() {
 			time.Sleep(5 * time.Second)
 		}
 	}
-	if viper.GetInt("RABBITMQ_NODES") != 2 {
-		kube.ScaleController("rabbitmq-controller", viper.GetInt("RABBITMQ_NODES"))
-	}
+
 }

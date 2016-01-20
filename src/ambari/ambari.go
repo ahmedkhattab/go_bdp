@@ -4,7 +4,9 @@ import (
 	"fmt"
 	"kube"
 	"log"
+	"os"
 	"time"
+	"util"
 
 	"github.com/spf13/viper"
 )
@@ -31,8 +33,8 @@ func Start() {
 	CleanUp()
 
 	log.Println("Ambari: Launching consul")
-	kube.CreateResource("~/BDP/Ambari/consul.json")
-	kube.CreateResource("~/BDP/Ambari/consul-service.json")
+	kube.CreateResource(os.Getenv("BDP_CONFIG_DIR") + "/Ambari/consul.json")
+	kube.CreateResource(os.Getenv("BDP_CONFIG_DIR") + "/Ambari/consul-service.json")
 
 	log.Println("Ambari: Waiting for consul server to start...")
 	for {
@@ -45,8 +47,8 @@ func Start() {
 	}
 
 	log.Println("Ambari: Launching Ambari server")
-	kube.CreateResource("~/BDP/Ambari/ambari-hdfs.json")
-	kube.CreateResource("~/BDP/Ambari/ambari-service.json")
+	kube.CreateResource(os.Getenv("BDP_CONFIG_DIR") + "/Ambari/ambari-hdfs.json")
+	kube.CreateResource(os.Getenv("BDP_CONFIG_DIR") + "/Ambari/ambari-service.json")
 
 	log.Println("Ambari: Waiting for ambari server to start...")
 	for {
@@ -70,7 +72,11 @@ func Start() {
 	kube.ExecOnPod("amb-server.service.consul", cmd)
 
 	log.Println("Ambari: launching ambari slaves...")
-	kube.CreateResource("~/BDP/Ambari/ambari-slave.json")
+	rc := util.LoadRC(os.Getenv("BDP_CONFIG_DIR") + "/Ambari/ambari-slave.json")
+	rc.Spec.Replicas = viper.GetInt("AMBARI_NODES")
+	util.SaveRC(os.Getenv("BDP_CONFIG_DIR")+"/tmp/ambari-slave.json", rc)
+	kube.CreateResource(os.Getenv("BDP_CONFIG_DIR") + "/tmp/ambari-slave.json")
+
 	for {
 		pending := kube.PendingPods()
 		if pending == 0 {
@@ -80,12 +86,8 @@ func Start() {
 		}
 	}
 
-	if viper.GetInt("AMBARI_NODES") != 3 {
-		kube.ScaleController("amb-slave-controller", viper.GetInt("AMBARI_NODES"))
-	}
-
 	log.Println("Ambari: creating ambari cluster using blueprint: multi-node-hdfs")
-	kube.CreateResource("~/BDP/Ambari/ambari-shell.json")
+	kube.CreateResource(os.Getenv("BDP_CONFIG_DIR") + "/Ambari/ambari-shell.json")
 
 	slave_pods := kube.PodNames("amb-slave")
 	for v := 0; v < len(slave_pods); v++ {

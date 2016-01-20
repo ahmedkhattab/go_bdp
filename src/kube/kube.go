@@ -163,20 +163,26 @@ func RemainingPods(prefix string) int {
 }
 
 func DeleteResource(rType string, rName string) string {
+	log.Println("Attempting to delete " + rName)
 	cmd := kube("delete", rType, rName)
 	var stderr bytes.Buffer
 	cmd.Stderr = &stderr
 	out, err := cmd.Output()
 	if err != nil {
-		log.Println(stderr.String())
+		if !strings.Contains(stderr.String(), "not found") {
+			log.Println(stderr.String())
+		}
 	}
 	return string(out)
 }
 
 func CreateResource(path string) string {
-	out, err := kube("create", "-f", path).Output()
+	cmd := kube("create", "-f", path)
+	var stderr bytes.Buffer
+	cmd.Stderr = &stderr
+	out, err := cmd.Output()
 	if err != nil {
-		log.Println(err)
+		log.Println(stderr.String())
 	}
 	return string(out)
 }

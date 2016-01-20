@@ -3,7 +3,10 @@ package cassandra
 import (
 	"kube"
 	"log"
+	"os"
 	"time"
+
+	"github.com/spf13/viper"
 )
 
 func CleanUp() {
@@ -25,9 +28,11 @@ func Start() {
 	CleanUp()
 
 	log.Println("Cassandra: Launching cassandra pods")
-	kube.CreateResource("~/BDP/cassandra/cassandra-controller.yaml")
-	kube.CreateResource("~/BDP/cassandra/cassandra-service.yaml")
-
+	kube.CreateResource(os.Getenv("BDP_CONFIG_DIR") + "/cassandra/cassandra-controller.yaml")
+	kube.CreateResource(os.Getenv("BDP_CONFIG_DIR") + "/cassandra/cassandra-service.yaml")
+	if viper.GetInt("CASSANDRA_NODES") != 2 {
+		kube.ScaleController("cassandra", viper.GetInt("CASSANDRA_NODES"))
+	}
 	log.Println("Cassandra: Waiting for cassandra pods to start...")
 	for {
 		pending := kube.PendingPods()
@@ -37,4 +42,5 @@ func Start() {
 			time.Sleep(5 * time.Second)
 		}
 	}
+
 }
