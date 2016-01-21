@@ -36,6 +36,7 @@ func main() {
 		fmt.Println("\tdeploy  deploys bdp components on a running cluster")
 		return
 	}
+
 	switch os.Args[1] {
 	case "start":
 		startCluster()
@@ -100,15 +101,15 @@ func stopCluster() bool {
 
 func deployComponents() {
 	if kube.ClusterIsUp() {
-		ambari.Start()
+		//	ambari.Start()
 		spark.Start()
-		rabbitmq.Start()
-		cassandra.Start()
+		//	rabbitmq.Start()
+		//cassandra.Start()
 
-		fmt.Printf("Ambari UI accessible through http://%s:31313\n", kube.PodPublicIP("amb-server.service.consul"))
+		//	fmt.Printf("Ambari UI accessible through http://%s:31313\n", kube.PodPublicIP("amb-server.service.consul"))
 		fmt.Printf("Spark UI accessible through http://%s:31314\n", kube.PodPublicIP("spark-master"))
-		fmt.Printf("RabbitMQ UI accessible through http://%s:31316\n", kube.PodPublicIP("spark-master"))
-		fmt.Printf("Cassandra accessible through %s:31317\n", kube.PodPublicIP("spark-master"))
+		//	fmt.Printf("RabbitMQ UI accessible through http://%s:31316\n", kube.PodPublicIP("spark-master"))
+		//	fmt.Printf("Cassandra accessible through %s:31317\n", kube.PodPublicIP("spark-master"))
 
 		fmt.Println(kube.GetPods())
 	} else {
@@ -135,4 +136,6 @@ func test() {
 	rc = util.LoadRC("/home/khattab/BDP/rabbitmq/rabbitmq-controller.json")
 	util.SaveRC("rabbitmq.json", rc)
 
+	rc = util.LoadRC("/home/khattab/BDP/cassandra/cassandra-controller.json")
+	util.SaveRC("cassandra.json", rc)
 }

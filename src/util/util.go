@@ -11,17 +11,15 @@ type Replicationcontroller struct {
 	APIVersion string `json:"apiVersion"`
 	Kind       string `json:"kind"`
 	Metadata   struct {
-		Labels interface{} `json:"labels"`
+		Labels interface{} `json:"labels,omitempty"`
 		Name   string      `json:"name"`
 	} `json:"metadata"`
 	Spec struct {
-		Replicas int `json:"replicas"`
-		Selector struct {
-			Name string `json:"name"`
-		} `json:"selector"`
+		Replicas int       `json:"replicas"`
+		Selector *selector `json:"selector,omitempty"`
 		Template struct {
 			Metadata struct {
-				Labels interface{} `json:"labels"`
+				Labels interface{} `json:"labels,omitempty"`
 			} `json:"metadata"`
 			Spec struct {
 				Containers []struct {
@@ -32,12 +30,25 @@ type Replicationcontroller struct {
 					Ports   []struct {
 						ContainerPort int `json:"containerPort"`
 					} `json:"ports"`
-					Resources *resources `json:"resources,omitempty"`
+					Resources    *resources     `json:"resources,omitempty"`
+					VolumeMounts []*volumeMount `json:"volumeMounts,omitempty"`
 				} `json:"containers"`
+				Volumes []*volume `json:"volumes,omitempty"`
 			} `json:"spec"`
 		} `json:"template"`
 	} `json:"spec"`
 }
+
+type volume struct {
+	EmptyDir struct{} `json:"emptyDir,omitempty"`
+	Name     string   `json:"name,omitempty"`
+}
+
+type volumeMount struct {
+	MountPath string `json:"mountPath,omitempty"`
+	Name      string `json:"name,omitempty"`
+}
+
 type resources struct {
 	Limits *limits `json:"limits,omitempty"`
 }
@@ -47,8 +58,19 @@ type limits struct {
 }
 
 type envVar struct {
-	Name  string `json:"name,omitempty"`
-	Value string `json:"value,omitempty"`
+	Name      string     `json:"name,omitempty"`
+	Value     string     `json:"value,omitempty"`
+	ValueFrom *valueFrom `json:"valueFrom,omitempty"`
+}
+
+type valueFrom struct {
+	FieldRef struct {
+		FieldPath string `json:"fieldPath,omitempty"`
+	} `json:"fieldRef,omitempty"`
+}
+
+type selector struct {
+	Name string `json:"name,omitempty"`
 }
 
 func LoadRC(jsonfile string) Replicationcontroller {
@@ -61,7 +83,6 @@ func LoadRC(jsonfile string) Replicationcontroller {
 	if err != nil {
 		log.Fatal("Error:", err)
 	}
-	fmt.Println(rc)
 	return rc
 }
 
