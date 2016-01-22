@@ -3,6 +3,7 @@ package main
 import (
 	"ambari"
 	"cassandra"
+	"flag"
 	"fmt"
 	"kube"
 	"log"
@@ -36,6 +37,12 @@ func main() {
 		fmt.Println("\tdeploy  deploys bdp components on a running cluster")
 		return
 	}
+	deployCommand := flag.NewFlagSet("deploy", flag.ExitOnError)
+	cassandraFlag := deployCommand.Bool("cassandra", false, "")
+	rabbitmqFlag := deployCommand.Bool("rabbitmq", false, "")
+	ambariFlag := deployCommand.Bool("ambari", false, "")
+	sparkFlag := deployCommand.Bool("spark", false, "")
+	allFlag := deployCommand.Bool("all", false, "")
 
 	switch os.Args[1] {
 	case "start":
@@ -43,7 +50,7 @@ func main() {
 	case "stop":
 		stopCluster()
 	case "deploy":
-		deployComponents()
+		deployCommand.Parse(os.Args[2:])
 	case "reset":
 		cleanUpCluster()
 	case "test":
@@ -51,6 +58,36 @@ func main() {
 	default:
 		fmt.Printf("%q is not valid command.\n", os.Args[1])
 		os.Exit(2)
+	}
+
+	if deployCommand.Parsed() {
+		if len(os.Args[2:]) == 0 {
+			*allFlag = true
+		}
+		stdout := ""
+		if kube.ClusterIsUp() {
+			if *ambariFlag || *allFlag {
+				ambari.Start()
+				stdout += fmt.Sprintf("Ambari UI accessible through http://%s:31313\n", kube.PodPublicIP("amb-server.service.consul"))
+			}
+			if *sparkFlag || *allFlag {
+				spark.Start()
+				stdout += fmt.Sprintf("Spark UI accessible through http://%s:31314\n", kube.PodPublicIP("spark-master"))
+			}
+			if *cassandraFlag || *allFlag {
+				cassandra.Start()
+				stdout += fmt.Sprintf("Cassandra accessible through %s:31317\n", kube.PodPublicIP("spark-master"))
+			}
+			if *rabbitmqFlag || *allFlag {
+				rabbitmq.Start()
+				stdout += fmt.Sprintf("RabbitMQ UI accessible through http://%s:31316\n", kube.PodPublicIP("spark-master"))
+			}
+			fmt.Println(kube.GetPods())
+			fmt.Print(stdout)
+		} else {
+			fmt.Println("Cluster is not running, run bdp start first")
+		}
+
 	}
 }
 

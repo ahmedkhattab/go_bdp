@@ -163,7 +163,6 @@ func RemainingPods(prefix string) int {
 }
 
 func DeleteResource(rType string, rName string) string {
-	log.Println("Attempting to delete " + rName)
 	cmd := kube("delete", rType, rName)
 	var stderr bytes.Buffer
 	cmd.Stderr = &stderr
