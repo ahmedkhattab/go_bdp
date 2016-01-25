@@ -8,7 +8,6 @@ import (
 	"kube"
 	"log"
 	"os"
-	"os/exec"
 	"rabbitmq"
 	"spark"
 	"util"
@@ -46,13 +45,13 @@ func main() {
 
 	switch os.Args[1] {
 	case "start":
-		startCluster()
+		kube.StartCluster()
 	case "stop":
-		stopCluster()
+		kube.StopCluster()
 	case "deploy":
 		deployCommand.Parse(os.Args[2:])
 	case "reset":
-		cleanUpCluster()
+		resetCluster()
 	case "test":
 		test()
 	default:
@@ -87,7 +86,6 @@ func main() {
 		} else {
 			fmt.Println("Cluster is not running, run bdp start first")
 		}
-
 	}
 }
 
@@ -104,57 +102,7 @@ func setEnvironment() {
 	os.Setenv("MASTER_ROOT_DISK_SIZE", viper.GetString("MASTER_ROOT_DISK_SIZE"))
 }
 
-func startCluster() bool {
-	if kube.ClusterIsUp() {
-		fmt.Println("Cluster is already running")
-		return true
-	}
-	cmd := exec.Command("sh", "-c", viper.GetString("KUBE_PATH")+"/cluster/kube-up.sh")
-	cmd.Stderr = os.Stderr
-	cmd.Stdout = os.Stdout
-	err := cmd.Run()
-	if err != nil {
-		log.Fatal(err)
-		return false
-	}
-	return true
-}
-
-func stopCluster() bool {
-	if kube.ClusterIsUp() {
-		cmd := exec.Command("sh", "-c", viper.GetString("KUBE_PATH")+"/cluster/kube-down.sh")
-		cmd.Stderr = os.Stderr
-		cmd.Stdout = os.Stdout
-		err := cmd.Run()
-		if err != nil {
-			log.Fatal(err)
-			return false
-		}
-		return true
-	}
-	fmt.Println("Cluster is already stopped")
-	return true
-}
-
-func deployComponents() {
-	if kube.ClusterIsUp() {
-		//	ambari.Start()
-		spark.Start()
-		//	rabbitmq.Start()
-		//cassandra.Start()
-
-		//	fmt.Printf("Ambari UI accessible through http://%s:31313\n", kube.PodPublicIP("amb-server.service.consul"))
-		fmt.Printf("Spark UI accessible through http://%s:31314\n", kube.PodPublicIP("spark-master"))
-		//	fmt.Printf("RabbitMQ UI accessible through http://%s:31316\n", kube.PodPublicIP("spark-master"))
-		//	fmt.Printf("Cassandra accessible through %s:31317\n", kube.PodPublicIP("spark-master"))
-
-		fmt.Println(kube.GetPods())
-	} else {
-		fmt.Println("Cluster is not running, run bdp start first")
-	}
-}
-
-func cleanUpCluster() {
+func resetCluster() {
 	if kube.ClusterIsUp() {
 		ambari.CleanUp()
 		spark.CleanUp()

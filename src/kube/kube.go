@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"fmt"
 	"log"
+	"os"
 	"os/exec"
 	"strconv"
 	"strings"
@@ -124,6 +125,7 @@ func PodPublicIP(pod string) string {
 	return string(out)
 }
 
+//ServiceIP returns the cluster ip of the input service
 func ServiceIP(service string) string {
 	out, err := kube("get service", service, "-o=template", "--template={{.spec.clusterIP}}").Output()
 	if err != nil {
@@ -132,6 +134,7 @@ func ServiceIP(service string) string {
 	return string(out)
 }
 
+//PendingPods returns the number of pods with status "Pending"
 func PendingPods() int {
 	pods := kube("get pods")
 	pending := exec.Command("grep", "Pending")
@@ -147,6 +150,7 @@ func PendingPods() int {
 	return num
 }
 
+//RemainingPods returns the number of remaining pods starting with the input prefix
 func RemainingPods(prefix string) int {
 	pods := kube("get pods", "--no-headers")
 	grepPrefix := exec.Command("grep", prefix)
@@ -162,6 +166,7 @@ func RemainingPods(prefix string) int {
 	return num
 }
 
+//DeleteResource deletes the input resource given its name and type
 func DeleteResource(rType string, rName string) string {
 	cmd := kube("delete", rType, rName)
 	var stderr bytes.Buffer
@@ -175,6 +180,7 @@ func DeleteResource(rType string, rName string) string {
 	return string(out)
 }
 
+//CreateResource creates the resource based on the config file specified by the input path
 func CreateResource(path string) string {
 	cmd := kube("create", "-f", path)
 	var stderr bytes.Buffer
@@ -186,6 +192,7 @@ func CreateResource(path string) string {
 	return string(out)
 }
 
+//ScaleController resize the input replication controller to a new size
 func ScaleController(rcName string, size int) string {
 	replicasParam := fmt.Sprintf("--replicas=%d", size)
 	out, err := kube("scale", replicasParam, "rc", rcName).Output()
@@ -194,6 +201,8 @@ func ScaleController(rcName string, size int) string {
 	}
 	return string(out)
 }
+
+//ExecOnPod executes the input command on a specific pod
 func ExecOnPod(pod string, command string) string {
 	cmd := kube("exec", pod, "--", "/bin/sh", "-c", command)
 	var stderr bytes.Buffer
@@ -204,4 +213,38 @@ func ExecOnPod(pod string, command string) string {
 		log.Println(stderr.String())
 	}
 	return string(out)
+}
+
+//StartCluster starts a clean kubernetes cluster
+func StartCluster() bool {
+	if ClusterIsUp() {
+		fmt.Println("Cluster is already running")
+		return true
+	}
+	cmd := exec.Command("sh", "-c", viper.GetString("KUBE_PATH")+"/cluster/kube-up.sh")
+	cmd.Stderr = os.Stderr
+	cmd.Stdout = os.Stdout
+	err := cmd.Run()
+	if err != nil {
+		log.Fatal(err)
+		return false
+	}
+	return true
+}
+
+//StopCluster stops a running kubernetes cluster
+func StopCluster() bool {
+	if ClusterIsUp() {
+		cmd := exec.Command("sh", "-c", viper.GetString("KUBE_PATH")+"/cluster/kube-down.sh")
+		cmd.Stderr = os.Stderr
+		cmd.Stdout = os.Stdout
+		err := cmd.Run()
+		if err != nil {
+			log.Fatal(err)
+			return false
+		}
+		return true
+	}
+	fmt.Println("Cluster is already stopped")
+	return true
 }
