@@ -15,9 +15,9 @@ import (
 func kube(cmd string, args ...string) *exec.Cmd {
 	if len(args) > 0 {
 		argsJoined := strings.Join(args, " ")
-		return exec.Command("sh", "-c", viper.GetString("KUBE_PATH")+"/cluster/kubectl.sh"+" "+cmd+" "+argsJoined)
+		return exec.Command("sh", "-c", viper.GetString("KUBE_DIST")+"/cluster/kubectl.sh"+" "+cmd+" "+argsJoined)
 	}
-	return exec.Command("sh", "-c", viper.GetString("KUBE_PATH")+"/cluster/kubectl.sh"+" "+cmd)
+	return exec.Command("sh", "-c", viper.GetString("KUBE_DIST")+"/cluster/kubectl.sh"+" "+cmd)
 }
 
 func pipeCommands(commands ...*exec.Cmd) ([]byte, error) {
@@ -221,7 +221,7 @@ func StartCluster() bool {
 		fmt.Println("Cluster is already running")
 		return true
 	}
-	cmd := exec.Command("sh", "-c", viper.GetString("KUBE_PATH")+"/cluster/kube-up.sh")
+	cmd := exec.Command("sh", "-c", viper.GetString("KUBE_DIST")+"/cluster/kube-up.sh")
 	cmd.Stderr = os.Stderr
 	cmd.Stdout = os.Stdout
 	err := cmd.Run()
@@ -235,7 +235,7 @@ func StartCluster() bool {
 //StopCluster stops a running kubernetes cluster
 func StopCluster() bool {
 	if ClusterIsUp() {
-		cmd := exec.Command("sh", "-c", viper.GetString("KUBE_PATH")+"/cluster/kube-down.sh")
+		cmd := exec.Command("sh", "-c", viper.GetString("KUBE_DIST")+"/cluster/kube-down.sh")
 		cmd.Stderr = os.Stderr
 		cmd.Stdout = os.Stdout
 		err := cmd.Run()

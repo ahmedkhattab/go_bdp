@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"kube"
 	"log"
-	"os"
 	"time"
 	"util"
 
@@ -29,12 +28,12 @@ func CleanUp() {
 	}
 }
 
-func Start() {
+func Start(config util.Config) {
 	CleanUp()
 
 	log.Println("Ambari: Launching consul")
-	kube.CreateResource(os.Getenv("BDP_CONFIG_DIR") + "/Ambari/consul.json")
-	kube.CreateResource(os.Getenv("BDP_CONFIG_DIR") + "/Ambari/consul-service.json")
+	kube.CreateResource(viper.GetString("BDP_CONFIG_DIR") + "/ambari/consul.json")
+	kube.CreateResource(viper.GetString("BDP_CONFIG_DIR") + "/ambari/consul-service.json")
 
 	log.Println("Ambari: Waiting for consul server to start...")
 	for {
@@ -47,8 +46,8 @@ func Start() {
 	}
 
 	log.Println("Ambari: Launching Ambari server")
-	kube.CreateResource(os.Getenv("BDP_CONFIG_DIR") + "/Ambari/ambari-hdfs.json")
-	kube.CreateResource(os.Getenv("BDP_CONFIG_DIR") + "/Ambari/ambari-service.json")
+	kube.CreateResource(viper.GetString("BDP_CONFIG_DIR") + "/ambari/ambari-hdfs.json")
+	kube.CreateResource(viper.GetString("BDP_CONFIG_DIR") + "/ambari/ambari-service.json")
 
 	log.Println("Ambari: Waiting for ambari server to start...")
 	for {
@@ -72,10 +71,10 @@ func Start() {
 	kube.ExecOnPod("amb-server.service.consul", cmd)
 
 	log.Println("Ambari: launching ambari slaves...")
-	rc := util.LoadRC(os.Getenv("BDP_CONFIG_DIR") + "/Ambari/ambari-slave.json")
-	rc.Spec.Replicas = viper.GetInt("AMBARI_NODES")
-	util.SaveRC(os.Getenv("BDP_CONFIG_DIR")+"/tmp/ambari-slave.json", rc)
-	kube.CreateResource(os.Getenv("BDP_CONFIG_DIR") + "/tmp/ambari-slave.json")
+
+	util.GenerateConfig("ambari-slave.json", "ambari", config)
+
+	kube.CreateResource(viper.GetString("BDP_CONFIG_DIR") + "/tmp/ambari-slave.json")
 
 	for {
 		pending := kube.PendingPods()
@@ -87,7 +86,7 @@ func Start() {
 	}
 
 	log.Println("Ambari: creating ambari cluster using blueprint: multi-node-hdfs")
-	kube.CreateResource(os.Getenv("BDP_CONFIG_DIR") + "/Ambari/ambari-shell.json")
+	kube.CreateResource(viper.GetString("BDP_CONFIG_DIR") + "/ambari/ambari-shell.json")
 
 	slavePods := kube.PodNames("amb-slave")
 	for v := 0; v < len(slavePods); v++ {

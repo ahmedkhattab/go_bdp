@@ -13,4 +13,5 @@ AMBARI_NODES: 4
 RABBITMQ_NODES: 2
 CASSANDRA_NODES: 2
 SPARK_WORKERS: 3
-KUBE_PATH: /home/khattab/kubernetes-1.1.2
+KUBE_DIST: /home/khattab/kubernetes-1.1.2
+BDP_CONFIG_DIR: /home/khattab/BDP

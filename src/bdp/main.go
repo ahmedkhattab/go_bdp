@@ -16,7 +16,6 @@ import (
 )
 
 func main() {
-	os.Setenv("BDP_CONFIG_DIR", "/home/khattab/BDP")
 	viper.SetConfigType("yaml") // or viper.SetConfigType("YAML")
 	viper.SetConfigName("config")
 	viper.AddConfigPath(".")
@@ -25,7 +24,8 @@ func main() {
 		log.Fatalf("Error loading config file: %s \n", err)
 	}
 
-	setEnvironment()
+	config := util.ConfigStruct()
+	util.SetEnvVars()
 
 	if len(os.Args) == 1 {
 		fmt.Println("usage: bdp <command> [<args>]")
@@ -53,7 +53,7 @@ func main() {
 	case "reset":
 		resetCluster()
 	case "test":
-		test()
+		test(config)
 	default:
 		fmt.Printf("%q is not valid command.\n", os.Args[1])
 		os.Exit(2)
@@ -66,19 +66,19 @@ func main() {
 		stdout := ""
 		if kube.ClusterIsUp() {
 			if *ambariFlag || *allFlag {
-				ambari.Start()
+				ambari.Start(config)
 				stdout += fmt.Sprintf("Ambari UI accessible through http://%s:31313\n", kube.PodPublicIP("amb-server.service.consul"))
 			}
 			if *sparkFlag || *allFlag {
-				spark.Start()
+				spark.Start(config)
 				stdout += fmt.Sprintf("Spark UI accessible through http://%s:31314\n", kube.PodPublicIP("spark-master"))
 			}
 			if *cassandraFlag || *allFlag {
-				cassandra.Start()
+				cassandra.Start(config)
 				stdout += fmt.Sprintf("Cassandra accessible through %s:31317\n", kube.PodPublicIP("spark-master"))
 			}
 			if *rabbitmqFlag || *allFlag {
-				rabbitmq.Start()
+				rabbitmq.Start(config)
 				stdout += fmt.Sprintf("RabbitMQ UI accessible through http://%s:31316\n", kube.PodPublicIP("spark-master"))
 			}
 			fmt.Println(kube.GetPods())
@@ -87,19 +87,6 @@ func main() {
 			fmt.Println("Cluster is not running, run bdp start first")
 		}
 	}
-}
-
-func setEnvironment() {
-	os.Setenv("KUBERNETES_PROVIDER", viper.GetString("KUBERNETES_PROVIDER"))
-	os.Setenv("KUBE_AWS_ZONE", viper.GetString("KUBE_AWS_ZONE"))
-	os.Setenv("NUM_MINIONS", viper.GetString("NUM_MINIONS"))
-	os.Setenv("MINION_SIZE", viper.GetString("MINION_SIZE"))
-	os.Setenv("MASTER_SIZE", viper.GetString("MASTER_SIZE"))
-	os.Setenv("AWS_S3_REGION", viper.GetString("AWS_S3_REGION"))
-	os.Setenv("INSTANCE_PREFIX", viper.GetString("INSTANCE_PREFIX"))
-	os.Setenv("AWS_S3_BUCKET", viper.GetString("AWS_S3_BUCKET"))
-	os.Setenv("MINION_ROOT_DISK_SIZE", viper.GetString("MINION_ROOT_DISK_SIZE"))
-	os.Setenv("MASTER_ROOT_DISK_SIZE", viper.GetString("MASTER_ROOT_DISK_SIZE"))
 }
 
 func resetCluster() {
@@ -111,16 +98,8 @@ func resetCluster() {
 	}
 }
 
-func test() {
-	rc := util.LoadRC("/home/khattab/BDP/Ambari/ambari-slave.json")
-	util.SaveRC("amb.json", rc)
-
-	rc = util.LoadRC("/home/khattab/BDP/spark/spark-worker-controller.json")
-	util.SaveRC("spark.json", rc)
-
-	rc = util.LoadRC("/home/khattab/BDP/rabbitmq/rabbitmq-controller.json")
-	util.SaveRC("rabbitmq.json", rc)
-
-	rc = util.LoadRC("/home/khattab/BDP/cassandra/cassandra-controller.json")
-	util.SaveRC("cassandra.json", rc)
+func test(config util.Config) {
+	util.GenerateConfig("cassandra-controller.json", "cassandra", config)
+	util.GenerateConfig("spark-worker-controller.json", "spark", config)
+	util.GenerateConfig("rabbitmq-controller.json", "rabbitmq", config)
 }

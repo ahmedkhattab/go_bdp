@@ -3,7 +3,6 @@ package rabbitmq
 import (
 	"kube"
 	"log"
-	"os"
 	"time"
 	"util"
 
@@ -25,15 +24,12 @@ func CleanUp() {
 	}
 }
 
-func Start() {
+func Start(config util.Config) {
 	CleanUp()
 
 	log.Println("Rabbitmq: Launching rabbitmq")
-
-	rc := util.LoadRC(os.Getenv("BDP_CONFIG_DIR") + "/rabbitmq/rabbitmq-controller.json")
-	rc.Spec.Replicas = viper.GetInt("RABBITMQ_NODES")
-	util.SaveRC(os.Getenv("BDP_CONFIG_DIR")+"/tmp/rabbitmq-controller.json", rc)
-	kube.CreateResource(os.Getenv("BDP_CONFIG_DIR") + "/tmp/rabbitmq-controller.json")
+	util.GenerateConfig("rabbitmq-controller.json", "rabbitmq", config)
+	kube.CreateResource(viper.GetString("BDP_CONFIG_DIR") + "/tmp/rabbitmq-controller.json")
 
 	log.Println("Rabbitmq: Waiting for Rabbitmq pods to start...")
 	for {
@@ -45,6 +41,6 @@ func Start() {
 		}
 	}
 
-	kube.CreateResource(os.Getenv("BDP_CONFIG_DIR") + "/rabbitmq/rabbitmq-service.json")
+	kube.CreateResource(viper.GetString("BDP_CONFIG_DIR") + "/rabbitmq/rabbitmq-service.json")
 
 }

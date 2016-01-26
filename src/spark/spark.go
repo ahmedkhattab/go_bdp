@@ -3,7 +3,6 @@ package spark
 import (
 	"kube"
 	"log"
-	"os"
 	"time"
 	"util"
 
@@ -26,11 +25,11 @@ func CleanUp() {
 	}
 }
 
-func Start() {
+func Start(config util.Config) {
 	CleanUp()
 
 	log.Println("Spark: Launching spark master")
-	kube.CreateResource(os.Getenv("BDP_CONFIG_DIR") + "/spark/spark-master.json")
+	kube.CreateResource(viper.GetString("BDP_CONFIG_DIR") + "/spark/spark-master.json")
 
 	log.Println("Spark: Waiting for spark master to start...")
 	for {
@@ -41,13 +40,12 @@ func Start() {
 			time.Sleep(5 * time.Second)
 		}
 	}
-	kube.CreateResource(os.Getenv("BDP_CONFIG_DIR") + "/spark/spark-master-service.json")
+	kube.CreateResource(viper.GetString("BDP_CONFIG_DIR") + "/spark/spark-master-service.json")
 
 	log.Println("Spark: Launching spark workers")
-	rc := util.LoadRC(os.Getenv("BDP_CONFIG_DIR") + "/spark/spark-worker-controller.json")
-	rc.Spec.Replicas = viper.GetInt("SPARK_WORKERS")
-	util.SaveRC(os.Getenv("BDP_CONFIG_DIR")+"/tmp/spark-worker-controller.json", rc)
-	kube.CreateResource(os.Getenv("BDP_CONFIG_DIR") + "/tmp/spark-worker-controller.json")
+
+	util.GenerateConfig("spark-worker-controller.json", "spark", config)
+	kube.CreateResource(viper.GetString("BDP_CONFIG_DIR") + "/tmp/spark-worker-controller.json")
 
 	log.Println("Spark: Waiting for spark workers to start...")
 	for {
@@ -60,6 +58,6 @@ func Start() {
 	}
 
 	log.Println("Spark: Launching spark driver")
-	kube.CreateResource(os.Getenv("BDP_CONFIG_DIR") + "/spark/spark-driver.json")
+	kube.CreateResource(viper.GetString("BDP_CONFIG_DIR") + "/spark/spark-driver.json")
 
 }

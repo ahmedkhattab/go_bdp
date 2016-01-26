@@ -3,7 +3,6 @@ package cassandra
 import (
 	"kube"
 	"log"
-	"os"
 	"time"
 	"util"
 
@@ -25,14 +24,12 @@ func CleanUp() {
 	}
 }
 
-func Start() {
+func Start(config util.Config) {
 	CleanUp()
 
 	log.Println("Cassandra: Launching cassandra pods")
-	rc := util.LoadRC(os.Getenv("BDP_CONFIG_DIR") + "/cassandra/cassandra-controller.json")
-	rc.Spec.Replicas = viper.GetInt("CASSANDRA_NODES")
-	util.SaveRC(os.Getenv("BDP_CONFIG_DIR")+"/tmp/cassandra-controller.json", rc)
-	kube.CreateResource(os.Getenv("BDP_CONFIG_DIR") + "/tmp/cassandra-controller.json")
+	util.GenerateConfig("cassandra-controller.json", "cassandra", config)
+	kube.CreateResource(viper.GetString("BDP_CONFIG_DIR") + "/tmp/cassandra-controller.json")
 
 	log.Println("Cassandra: Waiting for cassandra pods to start...")
 	for {
@@ -43,6 +40,6 @@ func Start() {
 			time.Sleep(5 * time.Second)
 		}
 	}
-	kube.CreateResource(os.Getenv("BDP_CONFIG_DIR") + "/cassandra/cassandra-service.json")
+	kube.CreateResource(viper.GetString("BDP_CONFIG_DIR") + "/cassandra/cassandra-service.json")
 
 }
