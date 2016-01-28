@@ -99,7 +99,6 @@ func resetCluster() {
 }
 
 func test(config util.Config) {
-	util.GenerateConfig("cassandra-controller.json", "cassandra", config)
-	util.GenerateConfig("spark-worker-controller.json", "spark", config)
-	util.GenerateConfig("rabbitmq-controller.json", "rabbitmq", config)
+	ambari.GetNamenode()
+	kube.Expose("pod", ambari.GetNamenode(), "--port=8020", "--target-port=8020", "--name=namenode")
 }

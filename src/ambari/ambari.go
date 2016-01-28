@@ -1,12 +1,16 @@
 package ambari
 
 import (
+	"encoding/json"
 	"fmt"
+	"io/ioutil"
 	"kube"
 	"log"
+	"net/http"
 	"time"
 	"util"
 
+	"github.com/jmoiron/jsonq"
 	"github.com/spf13/viper"
 )
 
@@ -26,6 +30,37 @@ func CleanUp() {
 			time.Sleep(5 * time.Second)
 		}
 	}
+}
+
+func GetNamenode() string {
+	url := fmt.Sprintf("http://%s:%s/api/v1/clusters/multi-node-hdfs/services/HDFS/components/NAMENODE", kube.PodPublicIP("amb-server.service.consul"), "31313")
+	request, err := http.NewRequest("GET", url, nil)
+	if err != nil {
+		log.Fatalf("GetNamenode: Error creating http request: %s \n", err)
+	}
+	request.SetBasicAuth("admin", "admin")
+	client := &http.Client{}
+	resp, err := client.Do(request)
+	defer resp.Body.Close()
+	if err != nil {
+		log.Fatalf("GetNamenode: Error performing http request: %s \n", err)
+	}
+	jsonObj := make(map[string]interface{})
+	body, _ := ioutil.ReadAll(resp.Body)
+	fmt.Println(string(body))
+	err = json.Unmarshal(body, &jsonObj)
+	if err != nil {
+		log.Fatalf("GetNamenode: Error parsing json response: %s \n", err)
+	}
+
+	jq := jsonq.NewQuery(jsonObj)
+	hostname, err := jq.String("host_components", "0", "HostRoles", "host_name")
+	if err != nil {
+		log.Fatalf("GetNamenode: could not find namenode hostname: %s \n", err)
+	}
+
+	fmt.Println(hostname)
+	return hostname
 }
 
 func Start(config util.Config) {
@@ -96,4 +131,7 @@ func Start(config util.Config) {
 		}
 	}
 
+	log.Println("Ambari: waiting to expose namenode service")
+	time.Sleep(10 * time.Second)
+	kube.Expose("pod", GetNamenode(), "--port=8020", "--target-port=8020", "--name=namenode")
 }

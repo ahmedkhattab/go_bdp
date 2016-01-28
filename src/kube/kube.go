@@ -248,3 +248,14 @@ func StopCluster() bool {
 	fmt.Println("Cluster is already stopped")
 	return true
 }
+
+func Expose(params ...string) string {
+	cmd := kube("expose", params...)
+	var stderr bytes.Buffer
+	cmd.Stderr = &stderr
+	out, err := cmd.Output()
+	if err != nil {
+		log.Println(stderr.String())
+	}
+	return string(out)
+}
