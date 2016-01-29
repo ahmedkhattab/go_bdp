@@ -249,6 +249,7 @@ func StopCluster() bool {
 	return true
 }
 
+//Expose exposes a pod as a service
 func Expose(params ...string) string {
 	cmd := kube("expose", params...)
 	var stderr bytes.Buffer

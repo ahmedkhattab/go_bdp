@@ -19,6 +19,7 @@ func CleanUp() {
 	kube.DeleteResource("rc", "amb-slave-controller")
 	kube.DeleteResource("svc", "ambari")
 	kube.DeleteResource("svc", "consul")
+	kube.DeleteResource("svc", "namenode")
 	kube.DeleteResource("pods", "amb-server.service.consul")
 	kube.DeleteResource("pods", "amb-consul")
 	kube.DeleteResource("pods", "amb-shell")
@@ -47,7 +48,6 @@ func GetNamenode() string {
 	}
 	jsonObj := make(map[string]interface{})
 	body, _ := ioutil.ReadAll(resp.Body)
-	fmt.Println(string(body))
 	err = json.Unmarshal(body, &jsonObj)
 	if err != nil {
 		log.Fatalf("GetNamenode: Error parsing json response: %s \n", err)
@@ -59,7 +59,7 @@ func GetNamenode() string {
 		log.Fatalf("GetNamenode: could not find namenode hostname: %s \n", err)
 	}
 
-	fmt.Println(hostname)
+	log.Printf("Ambari: namenode running on pod: %s \n", hostname)
 	return hostname
 }
 
