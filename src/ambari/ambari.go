@@ -56,7 +56,7 @@ func GetNamenode() string {
 	jq := jsonq.NewQuery(jsonObj)
 	hostname, err := jq.String("host_components", "0", "HostRoles", "host_name")
 	if err != nil {
-		log.Fatalf("GetNamenode: could not find namenode hostname: %s \n", err)
+		log.Fatalf("GetNamenode: could not find namenode hostname: %s \n", string(body))
 	}
 
 	log.Printf("Ambari: namenode running on pod: %s \n", hostname)
