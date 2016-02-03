@@ -5,8 +5,10 @@ import (
 	"cassandra"
 	"flag"
 	"fmt"
+	"io/ioutil"
 	"kube"
 	"log"
+	"net/http"
 	"os"
 	"rabbitmq"
 	"spark"
@@ -99,6 +101,26 @@ func resetCluster() {
 }
 
 func test(config util.Config) {
-	ambari.GetNamenode()
-	kube.Expose("pod", ambari.GetNamenode(), "--port=8020", "--target-port=8020", "--name=namenode")
+	//	curlAmbari("hosts")
+	//fmt.Println(kube.PodPublicIP("amb-server.service.consul"))
+	//	kube.DeleteResource("pod", kube.PodNames("amb-slave")[0])
+	//	curlAmbari("hosts")
+	ambari.UpdateHosts(kube.PodNames("amb-slave"))
+}
+
+func curlAmbari(url string) {
+	urlFull := fmt.Sprintf("http://%s:%s/api/v1/%s", kube.PodPublicIP("amb-server.service.consul"), "31313", url)
+	request, err := http.NewRequest("GET", urlFull, nil)
+	if err != nil {
+		log.Fatalf("Error creating http request: %s \n", err)
+	}
+	request.SetBasicAuth("admin", "admin")
+	client := &http.Client{}
+	resp, err := client.Do(request)
+	defer resp.Body.Close()
+	if err != nil {
+		log.Fatalf("Error performing http request: %s \n", err)
+	}
+	body, _ := ioutil.ReadAll(resp.Body)
+	fmt.Println(string(body))
 }

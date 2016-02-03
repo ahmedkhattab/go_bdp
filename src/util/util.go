@@ -10,17 +10,21 @@ import (
 )
 
 type Config struct {
-	AmbariNodes    int
-	CassandraNodes int
-	RabbitmqNodes  int
-	SparkWorkers   int
+	AmbariNodes        int
+	CassandraNodes     int
+	RabbitmqNodes      int
+	SparkWorkers       int
+	AmbariBlueprint    string
+	AmbariBlueprintURL string
 }
 
 func ConfigStruct() Config {
 	return Config{viper.GetInt("AMBARI_NODES"),
 		viper.GetInt("CASSANDRA_NODES"),
 		viper.GetInt("RABBITMQ_NODES"),
-		viper.GetInt("SPARK_WORKERS")}
+		viper.GetInt("SPARK_WORKERS"),
+		viper.GetString("AMBARI_BLUEPRINT"),
+		viper.GetString("AMBARI_BLUEPRINT_URL")}
 }
 
 func SetEnvVars() {
@@ -44,12 +48,12 @@ func GenerateConfig(templateName string, component string, data Config) {
 
 	tmpl, err := template.ParseFiles(filepath.Join(viper.GetString("BDP_CONFIG_DIR"), component, templateName))
 	if err != nil {
-		log.Fatalf("Error parsing templates: %s \n", err)
+		log.Fatalf("GenerateConfig: Error parsing templates: %s \n", err)
 	}
 
 	outputFile, err := os.Create(filepath.Join(viper.GetString("BDP_CONFIG_DIR"), "tmp", templateName))
 	err = tmpl.ExecuteTemplate(outputFile, templateName, data)
 	if err != nil {
-		log.Fatalf("Error generating configuration from template: %s \n", err)
+		log.Fatalf("GenerateConfig: Error generating configuration from template: %s \n", err)
 	}
 }

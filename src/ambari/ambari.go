@@ -33,8 +33,23 @@ func CleanUp() {
 	}
 }
 
+func UpdateHosts(slavePods []string) {
+	for v := 0; v < len(slavePods); v++ {
+		if slavePods[v] != "" {
+			hosts := ""
+			for k := 0; k < len(slavePods); k++ {
+				if v != k && slavePods[k] != "" {
+					hosts += fmt.Sprintf("%s %s\\n", kube.PodIP(slavePods[k]), slavePods[k])
+				}
+			}
+			cmd := fmt.Sprintf("\"echo $'%s' >> /etc/hosts\"", hosts)
+			kube.ExecOnPod(slavePods[v], cmd)
+		}
+	}
+}
+
 func GetNamenode() string {
-	url := fmt.Sprintf("http://%s:%s/api/v1/clusters/multi-node-hdfs/services/HDFS/components/NAMENODE", kube.PodPublicIP("amb-server.service.consul"), "31313")
+	url := fmt.Sprintf("http://%s:%s/api/v1/clusters/%s/services/HDFS/components/NAMENODE", kube.PodPublicIP("amb-server.service.consul"), "31313", viper.GetString("AMBARI_BLUEPRINT"))
 	request, err := http.NewRequest("GET", url, nil)
 	if err != nil {
 		log.Fatalf("GetNamenode: Error creating http request: %s \n", err)
@@ -120,9 +135,6 @@ func Start(config util.Config) {
 		}
 	}
 
-	log.Println("Ambari: creating ambari cluster using blueprint: multi-node-hdfs")
-	kube.CreateResource(viper.GetString("BDP_CONFIG_DIR") + "/ambari/ambari-shell.json")
-
 	slavePods := kube.PodNames("amb-slave")
 	for v := 0; v < len(slavePods); v++ {
 		if slavePods[v] != "" {
@@ -130,6 +142,11 @@ func Start(config util.Config) {
 			kube.ExecOnPod(slavePods[v], cmd)
 		}
 	}
+	UpdateHosts(slavePods)
+
+	log.Printf("Ambari: creating ambari cluster using blueprint: %s", viper.GetString("AMBARI_BLUEPRINT"))
+	util.GenerateConfig("ambari-shell.json", "ambari", config)
+	kube.CreateResource(viper.GetString("BDP_CONFIG_DIR") + "/tmp/ambari-shell.json")
 
 	log.Println("Ambari: waiting to expose namenode service")
 	time.Sleep(10 * time.Second)
