@@ -234,18 +234,14 @@ func StartCluster() bool {
 
 //StopCluster stops a running kubernetes cluster
 func StopCluster() bool {
-	if ClusterIsUp() {
-		cmd := exec.Command("sh", "-c", viper.GetString("KUBE_DIST")+"/cluster/kube-down.sh")
-		cmd.Stderr = os.Stderr
-		cmd.Stdout = os.Stdout
-		err := cmd.Run()
-		if err != nil {
-			log.Fatal(err)
-			return false
-		}
-		return true
+	cmd := exec.Command("sh", "-c", viper.GetString("KUBE_DIST")+"/cluster/kube-down.sh")
+	cmd.Stderr = os.Stderr
+	cmd.Stdout = os.Stdout
+	err := cmd.Run()
+	if err != nil {
+		log.Fatal(err)
+		return false
 	}
-	fmt.Println("Cluster is already stopped")
 	return true
 }
 

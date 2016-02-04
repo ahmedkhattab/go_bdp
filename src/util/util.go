@@ -18,6 +18,10 @@ type Config struct {
 	AmbariBlueprintURL string
 }
 
+type Slave struct {
+	AmbariSlaveName string
+}
+
 func ConfigStruct() Config {
 	return Config{viper.GetInt("AMBARI_NODES"),
 		viper.GetInt("CASSANDRA_NODES"),

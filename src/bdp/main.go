@@ -12,6 +12,7 @@ import (
 	"os"
 	"rabbitmq"
 	"spark"
+	"strings"
 	"util"
 
 	"github.com/spf13/viper"
@@ -105,7 +106,15 @@ func test(config util.Config) {
 	//fmt.Println(kube.PodPublicIP("amb-server.service.consul"))
 	//	kube.DeleteResource("pod", kube.PodNames("amb-slave")[0])
 	//	curlAmbari("hosts")
-	ambari.UpdateHosts(kube.PodNames("amb-slave"))
+	slavePods := kube.PodNames("amb-slave")
+	for v := 0; v < len(slavePods); v++ {
+		if slavePods[v] != "" {
+			podname := strings.Split(slavePods[v], ".")[0]
+			cmd := fmt.Sprintf("'curl -X PUT -d \"{\\\"Node\\\": \\\"%s\\\",\\\"Address\\\": \\\"$(hostname -I)\\\",\\\"Service\\\": {\\\"Service\\\": \\\"%s\\\"}}\" http://$CONSUL_SERVICE_HOST:8500/v1/catalog/register'", podname)
+			fmt.Println(cmd)
+			kube.ExecOnPod(slavePods[v], cmd)
+		}
+	}
 }
 
 func curlAmbari(url string) {

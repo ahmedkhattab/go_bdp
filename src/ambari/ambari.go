@@ -7,6 +7,10 @@ import (
 	"kube"
 	"log"
 	"net/http"
+	"os"
+	"path/filepath"
+	"strings"
+	"text/template"
 	"time"
 	"util"
 
@@ -16,13 +20,16 @@ import (
 
 func CleanUp() {
 	log.Println("Ambari: cleaning up cluster...")
-	kube.DeleteResource("rc", "amb-slave-controller")
+
+	kube.DeleteResource("pods", "-l name=amb-slave")
+	//kube.DeleteResource("rc", "amb-slave-controller")
 	kube.DeleteResource("svc", "ambari")
 	kube.DeleteResource("svc", "consul")
 	kube.DeleteResource("svc", "namenode")
 	kube.DeleteResource("pods", "amb-server.service.consul")
-	kube.DeleteResource("pods", "amb-consul")
+	kube.DeleteResource("pods", "amb-consul.service.consul")
 	kube.DeleteResource("pods", "amb-shell")
+
 	for {
 		remaining := kube.RemainingPods("amb")
 		if remaining == 0 {
@@ -31,6 +38,8 @@ func CleanUp() {
 			time.Sleep(5 * time.Second)
 		}
 	}
+	log.Println("Ambari: clean up done")
+
 }
 
 func UpdateHosts(slavePods []string) {
@@ -48,6 +57,24 @@ func UpdateHosts(slavePods []string) {
 	}
 }
 
+func generateConfig2(templateName string, component string) {
+
+	slaves := viper.GetInt("AMBARI_NODES")
+	for v := 1; v <= slaves; v++ {
+		slave := util.Slave{fmt.Sprintf("amb-slave%d", v)}
+		tmpl, err := template.ParseFiles(filepath.Join(viper.GetString("BDP_CONFIG_DIR"), component, templateName))
+		if err != nil {
+			log.Fatalf("GenerateConfig: Error parsing templates: %s \n", err)
+		}
+		outputFile, err := os.Create(filepath.Join(viper.GetString("BDP_CONFIG_DIR"), "tmp", templateName))
+		err = tmpl.ExecuteTemplate(outputFile, templateName, slave)
+		if err != nil {
+			log.Fatalf("GenerateConfig: Error generating configuration from template: %s \n", err)
+		}
+		kube.CreateResource(filepath.Join(viper.GetString("BDP_CONFIG_DIR"), "tmp", templateName))
+	}
+
+}
 func GetNamenode() string {
 	url := fmt.Sprintf("http://%s:%s/api/v1/clusters/%s/services/HDFS/components/NAMENODE", kube.PodPublicIP("amb-server.service.consul"), "31313", viper.GetString("AMBARI_BLUEPRINT"))
 	request, err := http.NewRequest("GET", url, nil)
@@ -87,7 +114,7 @@ func Start(config util.Config) {
 
 	log.Println("Ambari: Waiting for consul server to start...")
 	for {
-		serverState := kube.PodStatus("amb-consul")
+		serverState := kube.PodStatus("amb-consul.service.consul")
 		if serverState == "Running" {
 			break
 		} else {
@@ -122,9 +149,7 @@ func Start(config util.Config) {
 
 	log.Println("Ambari: launching ambari slaves...")
 
-	util.GenerateConfig("ambari-slave.json", "ambari", config)
-
-	kube.CreateResource(viper.GetString("BDP_CONFIG_DIR") + "/tmp/ambari-slave.json")
+	generateConfig2("amb-slave.json", "ambari")
 
 	for {
 		pending := kube.PendingPods()
@@ -138,11 +163,12 @@ func Start(config util.Config) {
 	slavePods := kube.PodNames("amb-slave")
 	for v := 0; v < len(slavePods); v++ {
 		if slavePods[v] != "" {
-			cmd = "'curl -X PUT -d \"{\\\"Node\\\": \\\"$(hostname)\\\",\\\"Address\\\": \\\"$(hostname -I)\\\",\\\"Service\\\": {\\\"Service\\\": \\\"$(hostname)\\\"}}\" http://$CONSUL_SERVICE_HOST:8500/v1/catalog/register'"
+			podname := strings.Split(slavePods[v], ".")[0]
+			cmd = fmt.Sprintf("'curl -X PUT -d \"{\\\"Node\\\": \\\"%[1]s\\\",\\\"Address\\\": \\\"$(hostname -I)\\\",\\\"Service\\\": {\\\"Service\\\": \\\"%[1]s\\\"}}\" http://$CONSUL_SERVICE_HOST:8500/v1/catalog/register'", podname)
 			kube.ExecOnPod(slavePods[v], cmd)
 		}
 	}
-	UpdateHosts(slavePods)
+	//UpdateHosts(slavePods)
 
 	log.Printf("Ambari: creating ambari cluster using blueprint: %s", viper.GetString("AMBARI_BLUEPRINT"))
 	util.GenerateConfig("ambari-shell.json", "ambari", config)
