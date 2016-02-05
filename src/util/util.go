@@ -48,7 +48,7 @@ func SetEnvVars() {
 //and the input configuration data.
 //assumed directory structure: $BDP_CONFIG_DIR/componentName/filename
 //e.g. $BDP_CONFIG_DIR/Ambari/ambari-slave.json
-func GenerateConfig(templateName string, component string, data Config) {
+func GenerateConfig(templateName string, component string, data interface{}) {
 
 	tmpl, err := template.ParseFiles(filepath.Join(viper.GetString("BDP_CONFIG_DIR"), component, templateName))
 	if err != nil {

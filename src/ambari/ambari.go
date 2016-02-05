@@ -7,10 +7,8 @@ import (
 	"kube"
 	"log"
 	"net/http"
-	"os"
 	"path/filepath"
 	"strings"
-	"text/template"
 	"time"
 	"util"
 
@@ -57,24 +55,15 @@ func UpdateHosts(slavePods []string) {
 	}
 }
 
-func generateConfig2(templateName string, component string) {
-
+func createSlaves(configFile string, component string) {
 	slaves := viper.GetInt("AMBARI_NODES")
 	for v := 1; v <= slaves; v++ {
 		slave := util.Slave{fmt.Sprintf("amb-slave%d", v)}
-		tmpl, err := template.ParseFiles(filepath.Join(viper.GetString("BDP_CONFIG_DIR"), component, templateName))
-		if err != nil {
-			log.Fatalf("GenerateConfig: Error parsing templates: %s \n", err)
-		}
-		outputFile, err := os.Create(filepath.Join(viper.GetString("BDP_CONFIG_DIR"), "tmp", templateName))
-		err = tmpl.ExecuteTemplate(outputFile, templateName, slave)
-		if err != nil {
-			log.Fatalf("GenerateConfig: Error generating configuration from template: %s \n", err)
-		}
-		kube.CreateResource(filepath.Join(viper.GetString("BDP_CONFIG_DIR"), "tmp", templateName))
+		util.GenerateConfig(configFile, "ambari", slave)
+		kube.CreateResource(filepath.Join(viper.GetString("BDP_CONFIG_DIR"), "tmp", configFile))
 	}
-
 }
+
 func GetNamenode() string {
 	url := fmt.Sprintf("http://%s:%s/api/v1/clusters/%s/services/HDFS/components/NAMENODE", kube.PodPublicIP("amb-server.service.consul"), "31313", viper.GetString("AMBARI_BLUEPRINT"))
 	request, err := http.NewRequest("GET", url, nil)
@@ -149,7 +138,7 @@ func Start(config util.Config) {
 
 	log.Println("Ambari: launching ambari slaves...")
 
-	generateConfig2("amb-slave.json", "ambari")
+	createSlaves("amb-slave.json", "ambari")
 
 	for {
 		pending := kube.PendingPods()
@@ -168,7 +157,7 @@ func Start(config util.Config) {
 			kube.ExecOnPod(slavePods[v], cmd)
 		}
 	}
-	//UpdateHosts(slavePods)
+	UpdateHosts(slavePods)
 
 	log.Printf("Ambari: creating ambari cluster using blueprint: %s", viper.GetString("AMBARI_BLUEPRINT"))
 	util.GenerateConfig("ambari-shell.json", "ambari", config)
