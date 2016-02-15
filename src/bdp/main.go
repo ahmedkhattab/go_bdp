@@ -6,6 +6,7 @@ import (
 	"flag"
 	"fmt"
 	"io/ioutil"
+	"kafka"
 	"kube"
 	"log"
 	"net/http"
@@ -44,6 +45,7 @@ func main() {
 	rabbitmqFlag := deployCommand.Bool("rabbitmq", false, "")
 	ambariFlag := deployCommand.Bool("ambari", false, "")
 	sparkFlag := deployCommand.Bool("spark", false, "")
+	kafkaFlag := deployCommand.Bool("kafka", false, "")
 	allFlag := deployCommand.Bool("all", false, "")
 
 	switch os.Args[1] {
@@ -55,6 +57,8 @@ func main() {
 		deployCommand.Parse(os.Args[2:])
 	case "reset":
 		resetCluster()
+	case "info":
+		fmt.Println(kube.GetPods())
 	case "test":
 		test(config)
 	default:
@@ -84,6 +88,10 @@ func main() {
 				rabbitmq.Start(config)
 				stdout += fmt.Sprintf("RabbitMQ UI accessible through http://%s:31316\n", kube.PodPublicIP("spark-master"))
 			}
+			if *kafkaFlag || *allFlag {
+				kafka.Start(config)
+				stdout += fmt.Sprintf("Kafka accessible through http://%s:31318\n", kube.PodPublicIP("spark-master"))
+			}
 			fmt.Println(kube.GetPods())
 			fmt.Print(stdout)
 		} else {
@@ -94,10 +102,9 @@ func main() {
 
 func resetCluster() {
 	if kube.ClusterIsUp() {
-		ambari.CleanUp()
-		spark.CleanUp()
-		rabbitmq.CleanUp()
-		cassandra.CleanUp()
+		kube.DeleteResource("svc", "--all")
+		kube.DeleteResource("rc", "--all")
+		kube.DeleteResource("pod", "--all")
 	}
 }
 
