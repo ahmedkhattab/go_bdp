@@ -37,7 +37,7 @@ func CleanUp() {
 		}
 	}
 	log.Println("Ambari: clean up done")
-
+	util.ReleasePID("ambari")
 }
 
 func UpdateHosts(slavePods []string) {
@@ -95,6 +95,10 @@ func GetNamenode() string {
 }
 
 func Start(config util.Config) {
+	if util.IsRunning("ambari") {
+		log.Println("Ambari: already running, skipping start ...")
+		return
+	}
 	CleanUp()
 
 	log.Println("Ambari: Launching consul")
@@ -164,6 +168,7 @@ func Start(config util.Config) {
 	kube.CreateResource(viper.GetString("BDP_CONFIG_DIR") + "/tmp/ambari-shell.json")
 
 	log.Println("Ambari: waiting to expose namenode service")
-	time.Sleep(10 * time.Second)
+	time.Sleep(15 * time.Second)
 	kube.Expose("pod", GetNamenode(), "--port=8020", "--target-port=8020", "--name=namenode")
+	util.SetPID("ambari")
 }

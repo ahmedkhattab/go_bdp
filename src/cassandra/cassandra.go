@@ -22,9 +22,14 @@ func CleanUp() {
 			time.Sleep(5 * time.Second)
 		}
 	}
+	util.ReleasePID("cassandra")
 }
 
 func Start(config util.Config) {
+	if util.IsRunning("cassandra") {
+		log.Println("Cassandra: already running, skipping start ...")
+		return
+	}
 	CleanUp()
 
 	log.Println("Cassandra: Launching cassandra pods")
@@ -41,5 +46,5 @@ func Start(config util.Config) {
 		}
 	}
 	kube.CreateResource(viper.GetString("BDP_CONFIG_DIR") + "/cassandra/cassandra-service.json")
-
+	util.SetPID("cassandra")
 }

@@ -6,6 +6,7 @@ import (
 	"log"
 	"os"
 	"os/exec"
+	"path/filepath"
 	"strconv"
 	"strings"
 
@@ -221,6 +222,7 @@ func StartCluster() bool {
 		fmt.Println("Cluster is already running")
 		return true
 	}
+	os.RemoveAll(filepath.Join(viper.GetString("BDP_CONFIG_DIR"), "tmp"))
 	cmd := exec.Command("sh", "-c", viper.GetString("KUBE_DIST")+"/cluster/kube-up.sh")
 	cmd.Stderr = os.Stderr
 	cmd.Stdout = os.Stdout
@@ -234,6 +236,7 @@ func StartCluster() bool {
 
 //StopCluster stops a running kubernetes cluster
 func StopCluster() bool {
+	os.RemoveAll(filepath.Join(viper.GetString("BDP_CONFIG_DIR"), "tmp"))
 	cmd := exec.Command("sh", "-c", viper.GetString("KUBE_DIST")+"/cluster/kube-down.sh")
 	cmd.Stderr = os.Stderr
 	cmd.Stdout = os.Stdout

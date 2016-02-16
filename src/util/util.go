@@ -14,6 +14,7 @@ type Config struct {
 	CassandraNodes     int
 	RabbitmqNodes      int
 	SparkWorkers       int
+	KafkaNodes         int
 	AmbariBlueprint    string
 	AmbariBlueprintURL string
 }
@@ -22,15 +23,21 @@ type Slave struct {
 	AmbariSlaveName string
 }
 
+//ConfigStruct creates an instance of the config structure out of the config
+//parameters to be used by the template engine to generate kubernetes resources
+//config files
 func ConfigStruct() Config {
 	return Config{viper.GetInt("AMBARI_NODES"),
 		viper.GetInt("CASSANDRA_NODES"),
 		viper.GetInt("RABBITMQ_NODES"),
 		viper.GetInt("SPARK_WORKERS"),
+		viper.GetInt("KAFKA_NODES"),
 		viper.GetString("AMBARI_BLUEPRINT"),
 		viper.GetString("AMBARI_BLUEPRINT_URL")}
 }
 
+//SetEnvVars sets the environment variables needed for the kube-up script based
+//on values provided in the yaml config file
 func SetEnvVars() {
 	os.Setenv("KUBERNETES_PROVIDER", viper.GetString("KUBERNETES_PROVIDER"))
 	os.Setenv("KUBE_AWS_ZONE", viper.GetString("KUBE_AWS_ZONE"))
@@ -44,12 +51,11 @@ func SetEnvVars() {
 	os.Setenv("MASTER_ROOT_DISK_SIZE", viper.GetString("MASTER_ROOT_DISK_SIZE"))
 }
 
-//GenerateConfig generates a kubernetes configuration instance based on the input template
-//and the input configuration data.
-//assumed directory structure: $BDP_CONFIG_DIR/componentName/filename
+//GenerateConfig generates a kubernetes configuration instance based on the
+//input template and the input configuration data.
+//Assumes a directory structure: $BDP_CONFIG_DIR/componentName/filename
 //e.g. $BDP_CONFIG_DIR/Ambari/ambari-slave.json
 func GenerateConfig(templateName string, component string, data interface{}) {
-
 	tmpl, err := template.ParseFiles(filepath.Join(viper.GetString("BDP_CONFIG_DIR"), component, templateName))
 	if err != nil {
 		log.Fatalf("GenerateConfig: Error parsing templates: %s \n", err)
@@ -60,4 +66,23 @@ func GenerateConfig(templateName string, component string, data interface{}) {
 	if err != nil {
 		log.Fatalf("GenerateConfig: Error generating configuration from template: %s \n", err)
 	}
+}
+
+func SetPID(pName string) {
+	os.Create(filepath.Join(viper.GetString("BDP_CONFIG_DIR"), "tmp", pName+".pid"))
+}
+
+func ReleasePID(pName string) {
+	os.Remove(filepath.Join(viper.GetString("BDP_CONFIG_DIR"), "tmp", pName+".pid"))
+}
+
+func IsRunning(pName string) bool {
+	_, err := os.Stat(filepath.Join(viper.GetString("BDP_CONFIG_DIR"), "tmp", pName+".pid"))
+	if err == nil {
+		return true
+	}
+	if os.IsNotExist(err) {
+		return false
+	}
+	return true
 }

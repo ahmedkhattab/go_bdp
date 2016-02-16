@@ -22,9 +22,14 @@ func CleanUp() {
 			time.Sleep(5 * time.Second)
 		}
 	}
+	util.ReleasePID("rabbitmq")
 }
 
 func Start(config util.Config) {
+	if util.IsRunning("rabbitmq") {
+		log.Println("Rabbitmq: already running, skipping start ...")
+		return
+	}
 	CleanUp()
 
 	log.Println("Rabbitmq: Launching rabbitmq")
@@ -42,5 +47,5 @@ func Start(config util.Config) {
 	}
 
 	kube.CreateResource(viper.GetString("BDP_CONFIG_DIR") + "/rabbitmq/rabbitmq-service.json")
-
+	util.SetPID("rabbitmq")
 }

@@ -23,9 +23,14 @@ func CleanUp() {
 			time.Sleep(5 * time.Second)
 		}
 	}
+	util.ReleasePID("spark")
 }
 
 func Start(config util.Config) {
+	if util.IsRunning("spark") {
+		log.Println("Spark: already running, skipping start ...")
+		return
+	}
 	CleanUp()
 
 	log.Println("Spark: Launching spark master")
@@ -59,5 +64,5 @@ func Start(config util.Config) {
 
 	log.Println("Spark: Launching spark driver")
 	kube.CreateResource(viper.GetString("BDP_CONFIG_DIR") + "/spark/spark-driver.json")
-
+	util.SetPID("spark")
 }

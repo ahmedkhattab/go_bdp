@@ -24,9 +24,14 @@ func CleanUp() {
 			time.Sleep(5 * time.Second)
 		}
 	}
+	util.ReleasePID("kafka")
 }
 
 func Start(config util.Config) {
+	if util.IsRunning("kafka") {
+		log.Println("Kafka: already running, skipping start ...")
+		return
+	}
 	CleanUp()
 
 	log.Println("Kafka: Launching zookeeper services")
@@ -46,10 +51,10 @@ func Start(config util.Config) {
 
 	log.Println("Kafka: Launching kafka clients")
 
-	//util.GenerateConfig("spark-worker-controller.json", "spark", config)
 	log.Println("Kafka: Launching kafka service")
 	kube.CreateResource(viper.GetString("BDP_CONFIG_DIR") + "/kafka/kafka-service.json")
-	kube.CreateResource(viper.GetString("BDP_CONFIG_DIR") + "/kafka/kafka.json")
+	util.GenerateConfig("kafka.json", "kafka", config)
+	kube.CreateResource(viper.GetString("BDP_CONFIG_DIR") + "/tmp/kafka.json")
 
 	log.Println("Kafka: Waiting for kafka client to start...")
 	for {
@@ -60,4 +65,5 @@ func Start(config util.Config) {
 			time.Sleep(5 * time.Second)
 		}
 	}
+	util.SetPID("kafka")
 }
