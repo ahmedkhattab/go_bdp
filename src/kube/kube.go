@@ -248,6 +248,31 @@ func StopCluster() bool {
 	return true
 }
 
+//ResetCluster resets the cluster by removing all running resources
+func ResetCluster() {
+	if ClusterIsUp() {
+		DeleteResource("svc", "--all")
+		DeleteResource("rc", "--all")
+		DeleteResource("pod", "--all")
+		os.RemoveAll(filepath.Join(viper.GetString("BDP_CONFIG_DIR"), "tmp"))
+	}
+}
+
+//SetContext changes the current kubernetes context to allow runtime choice of
+//the cluster used for deployment
+func SetContext(context string) bool {
+	cmd := kube("config", "use-context", context)
+	var stderr bytes.Buffer
+	cmd.Stderr = &stderr
+	out, err := cmd.Output()
+	if err != nil {
+		log.Println(stderr.String())
+		return false
+	}
+	log.Println(string(out))
+	return true
+}
+
 //Expose exposes a pod as a service
 func Expose(params ...string) string {
 	cmd := kube("expose", params...)

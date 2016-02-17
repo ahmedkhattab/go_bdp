@@ -5,11 +5,9 @@ import (
 	"cassandra"
 	"flag"
 	"fmt"
-	"io/ioutil"
 	"kafka"
 	"kube"
 	"log"
-	"net/http"
 	"os"
 	"path/filepath"
 	"rabbitmq"
@@ -20,6 +18,8 @@ import (
 )
 
 func main() {
+
+	components := []string{"ambari", "cassandra", "rabbitmq", "spark", "kafka"}
 	viper.SetConfigType("toml")
 	viper.SetConfigName("defaults")
 	viper.AddConfigPath(".")
@@ -29,8 +29,6 @@ func main() {
 	if err != nil {
 		log.Fatalf("Error loading config file: %s \n", err)
 	}
-
-	config := util.ConfigStruct()
 	util.SetEnvVars()
 
 	if len(os.Args) == 1 {
@@ -46,13 +44,13 @@ func main() {
 	}
 
 	deployCommand := flag.NewFlagSet("deploy", flag.ExitOnError)
-	cassandraFlag := deployCommand.Bool("cassandra", false, "")
-	rabbitmqFlag := deployCommand.Bool("rabbitmq", false, "")
-	ambariFlag := deployCommand.Bool("ambari", false, "")
-	sparkFlag := deployCommand.Bool("spark", false, "")
-	kafkaFlag := deployCommand.Bool("kafka", false, "")
+	componentsMap := make(map[string]*bool)
+	for _, component := range components {
+		componentsMap[component] = deployCommand.Bool(component, false, "")
+	}
 	allFlag := deployCommand.Bool("all", false, "")
 	confFlag := deployCommand.String("conf", "", "path to the json config file")
+	clusterFlag := deployCommand.String("cluster", "", "the kubernetes context to use for deployment")
 
 	switch os.Args[1] {
 	case "start":
@@ -65,11 +63,11 @@ func main() {
 	case "deploy":
 		deployCommand.Parse(os.Args[2:])
 	case "reset":
-		resetCluster()
+		kube.ResetCluster()
 	case "info":
 		fmt.Println(kube.GetPods())
 	case "test":
-		test(config)
+		test()
 	default:
 		fmt.Printf("%q is not valid command.\n", os.Args[1])
 		os.Exit(2)
@@ -82,70 +80,59 @@ func main() {
 		if *confFlag != "" {
 			log.Printf("Loading configuration file %s \n", *confFlag)
 			viper.SetConfigFile(*confFlag)
-			err := viper.ReadInConfig()
+
+			err := viper.MergeInConfig()
 			if err != nil {
 				log.Fatalf("Error loading config file: %s \n", err)
 			}
+			for _, component := range components {
+				if viper.IsSet(component) {
+					*componentsMap[component] = true
+				}
+			}
 		}
 
-		stdout := ""
-		if kube.ClusterIsUp() {
-			os.Mkdir(filepath.Join(viper.GetString("BDP_CONFIG_DIR"), "tmp"), 0777)
-			if *ambariFlag || *allFlag {
-				ambari.Start(config)
-				stdout += fmt.Sprintf("Ambari UI accessible through http://%s:31313\n", kube.PodPublicIP("amb-server.service.consul"))
-			}
-			if *rabbitmqFlag || *allFlag {
-				rabbitmq.Start(config)
-				stdout += fmt.Sprintf("RabbitMQ UI accessible through http://%s:31316\n", kube.PodPublicIP("spark-master"))
-			}
-			if *kafkaFlag || *allFlag {
-				kafka.Start(config)
-				stdout += fmt.Sprintf("Kafka accessible through http://%s:31318\n", kube.PodPublicIP("spark-master"))
-			}
-			if *sparkFlag || *allFlag {
-				spark.Start(config)
-				stdout += fmt.Sprintf("Spark UI accessible through http://%s:31314\n", kube.PodPublicIP("spark-master"))
-			}
-			if *cassandraFlag || *allFlag {
-				cassandra.Start(config)
-				stdout += fmt.Sprintf("Cassandra accessible through %s:31317\n", kube.PodPublicIP("spark-master"))
-			}
-
-			fmt.Println(kube.GetPods())
-			fmt.Print(stdout)
-		} else {
-			fmt.Println("Cluster is not running, run bdp start first")
+		if *clusterFlag != "" {
+			kube.SetContext(*clusterFlag)
 		}
+
+		config := util.ConfigStruct()
+		fmt.Println(config)
+		launchComponents(componentsMap, allFlag, config)
 	}
 }
 
-func resetCluster() {
+func launchComponents(componentsMap map[string]*bool, allFlag *bool, config util.Config) {
+	stdout := ""
 	if kube.ClusterIsUp() {
-		kube.DeleteResource("svc", "--all")
-		kube.DeleteResource("rc", "--all")
-		kube.DeleteResource("pod", "--all")
-		os.RemoveAll(filepath.Join(viper.GetString("BDP_CONFIG_DIR"), "tmp"))
+		os.Mkdir(filepath.Join(viper.GetString("BDP_CONFIG_DIR"), "tmp"), 0777)
+		if *componentsMap["ambari"] || *allFlag {
+			ambari.Start(config)
+			stdout += fmt.Sprintf("Ambari UI accessible through http://%s:31313\n", kube.PodPublicIP("amb-server.service.consul"))
+		}
+		if *componentsMap["rabbitmq"] || *allFlag {
+			rabbitmq.Start(config)
+			stdout += fmt.Sprintf("RabbitMQ UI accessible through http://%s:31316\n", kube.PodPublicIP("spark-master"))
+		}
+		if *componentsMap["kafka"] || *allFlag {
+			kafka.Start(config)
+			stdout += fmt.Sprintf("Kafka accessible through http://%s:31318\n", kube.PodPublicIP("spark-master"))
+		}
+		if *componentsMap["spark"] || *allFlag {
+			spark.Start(config)
+			stdout += fmt.Sprintf("Spark UI accessible through http://%s:31314\n", kube.PodPublicIP("spark-master"))
+		}
+		if *componentsMap["cassandra"] || *allFlag {
+			cassandra.Start(config)
+			stdout += fmt.Sprintf("Cassandra accessible through %s:31317\n", kube.PodPublicIP("spark-master"))
+		}
+		fmt.Println(kube.GetPods())
+		fmt.Print(stdout)
+	} else {
+		fmt.Println("Cluster is not running, run bdp start first")
 	}
 }
 
-func test(config util.Config) {
+func test() {
 	spark.CleanUp()
-}
-
-func curlAmbari(url string) {
-	urlFull := fmt.Sprintf("http://%s:%s/api/v1/%s", kube.PodPublicIP("amb-server.service.consul"), "31313", url)
-	request, err := http.NewRequest("GET", urlFull, nil)
-	if err != nil {
-		log.Fatalf("Error creating http request: %s \n", err)
-	}
-	request.SetBasicAuth("admin", "admin")
-	client := &http.Client{}
-	resp, err := client.Do(request)
-	defer resp.Body.Close()
-	if err != nil {
-		log.Fatalf("Error performing http request: %s \n", err)
-	}
-	body, _ := ioutil.ReadAll(resp.Body)
-	fmt.Println(string(body))
 }
