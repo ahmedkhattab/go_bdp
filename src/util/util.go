@@ -27,13 +27,13 @@ type Slave struct {
 //parameters to be used by the template engine to generate kubernetes resources
 //config files
 func ConfigStruct() Config {
-	return Config{viper.GetInt("AMBARI_NODES"),
-		viper.GetInt("CASSANDRA_NODES"),
-		viper.GetInt("RABBITMQ_NODES"),
-		viper.GetInt("SPARK_WORKERS"),
-		viper.GetInt("KAFKA_NODES"),
-		viper.GetString("AMBARI_BLUEPRINT"),
-		viper.GetString("AMBARI_BLUEPRINT_URL")}
+	return Config{viper.GetInt("ambari.AMBARI_NODES"),
+		viper.GetInt("cassandra.CASSANDRA_NODES"),
+		viper.GetInt("rabbitmq.RABBITMQ_NODES"),
+		viper.GetInt("spark.SPARK_WORKERS"),
+		viper.GetInt("kafka.KAFKA_NODES"),
+		viper.GetString("ambari.AMBARI_BLUEPRINT"),
+		viper.GetString("ambari.AMBARI_BLUEPRINT_URL")}
 }
 
 //SetEnvVars sets the environment variables needed for the kube-up script based

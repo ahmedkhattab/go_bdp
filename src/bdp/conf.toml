@@ -1,0 +1,19 @@
+[ambari]
+AMBARI_SLAVES = 4
+AMBARI_BLUEPRINT = "ha-hdfs"
+AMBARI_BLUEPRINT_URL = "https =//goo.gl/GRVbkp"
+
+[spark]
+NUM_WORKERS = 5
+
+[rabbitmq]
+RABBITMQ_NODES = 3
+
+[cassandra]
+CASSANDRA_NODES = 3
+
+[kafka]
+KAFKA_NODES = 2
+
+[spark]
+SPARK_WORKERS = 5

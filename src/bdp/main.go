@@ -20,11 +20,13 @@ import (
 )
 
 func main() {
-	viper.SetConfigType("yaml") // or viper.SetConfigType("YAML")
-	viper.SetConfigName("config")
+	viper.SetConfigType("toml")
+	viper.SetConfigName("defaults")
 	viper.AddConfigPath(".")
-	err := viper.ReadInConfig() // Find and read the config file
-	if err != nil {             // Handle errors reading the config file
+	viper.AddConfigPath("../src/bdp")
+
+	err := viper.ReadInConfig()
+	if err != nil {
 		log.Fatalf("Error loading config file: %s \n", err)
 	}
 
@@ -42,6 +44,7 @@ func main() {
 		fmt.Println("\tdeploy  deploys bdp components on a running cluster")
 		return
 	}
+
 	deployCommand := flag.NewFlagSet("deploy", flag.ExitOnError)
 	cassandraFlag := deployCommand.Bool("cassandra", false, "")
 	rabbitmqFlag := deployCommand.Bool("rabbitmq", false, "")
@@ -49,6 +52,7 @@ func main() {
 	sparkFlag := deployCommand.Bool("spark", false, "")
 	kafkaFlag := deployCommand.Bool("kafka", false, "")
 	allFlag := deployCommand.Bool("all", false, "")
+	confFlag := deployCommand.String("conf", "", "path to the json config file")
 
 	switch os.Args[1] {
 	case "start":
@@ -75,6 +79,15 @@ func main() {
 		if len(os.Args[2:]) == 0 {
 			*allFlag = true
 		}
+		if *confFlag != "" {
+			log.Printf("Loading configuration file %s \n", *confFlag)
+			viper.SetConfigFile(*confFlag)
+			err := viper.ReadInConfig()
+			if err != nil {
+				log.Fatalf("Error loading config file: %s \n", err)
+			}
+		}
+
 		stdout := ""
 		if kube.ClusterIsUp() {
 			os.Mkdir(filepath.Join(viper.GetString("BDP_CONFIG_DIR"), "tmp"), 0777)
@@ -82,22 +95,23 @@ func main() {
 				ambari.Start(config)
 				stdout += fmt.Sprintf("Ambari UI accessible through http://%s:31313\n", kube.PodPublicIP("amb-server.service.consul"))
 			}
-			if *sparkFlag || *allFlag {
-				spark.Start(config)
-				stdout += fmt.Sprintf("Spark UI accessible through http://%s:31314\n", kube.PodPublicIP("spark-master"))
-			}
 			if *rabbitmqFlag || *allFlag {
 				rabbitmq.Start(config)
 				stdout += fmt.Sprintf("RabbitMQ UI accessible through http://%s:31316\n", kube.PodPublicIP("spark-master"))
-			}
-			if *cassandraFlag || *allFlag {
-				cassandra.Start(config)
-				stdout += fmt.Sprintf("Cassandra accessible through %s:31317\n", kube.PodPublicIP("spark-master"))
 			}
 			if *kafkaFlag || *allFlag {
 				kafka.Start(config)
 				stdout += fmt.Sprintf("Kafka accessible through http://%s:31318\n", kube.PodPublicIP("spark-master"))
 			}
+			if *sparkFlag || *allFlag {
+				spark.Start(config)
+				stdout += fmt.Sprintf("Spark UI accessible through http://%s:31314\n", kube.PodPublicIP("spark-master"))
+			}
+			if *cassandraFlag || *allFlag {
+				cassandra.Start(config)
+				stdout += fmt.Sprintf("Cassandra accessible through %s:31317\n", kube.PodPublicIP("spark-master"))
+			}
+
 			fmt.Println(kube.GetPods())
 			fmt.Print(stdout)
 		} else {
