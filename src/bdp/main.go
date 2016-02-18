@@ -29,6 +29,8 @@ func main() {
 	if err != nil {
 		log.Fatalf("Error loading config file: %s \n", err)
 	}
+
+	util.SetDefaults()
 	util.SetEnvVars()
 
 	if len(os.Args) == 1 {
@@ -81,12 +83,14 @@ func main() {
 			log.Printf("Loading configuration file %s \n", *confFlag)
 			viper.SetConfigFile(*confFlag)
 
-			err := viper.MergeInConfig()
+			err := viper.ReadInConfig()
 			if err != nil {
 				log.Fatalf("Error loading config file: %s \n", err)
 			}
+			fmt.Println(viper.AllSettings())
+
 			for _, component := range components {
-				if viper.IsSet(component) {
+				if viper.InConfig(component) {
 					*componentsMap[component] = true
 				}
 			}

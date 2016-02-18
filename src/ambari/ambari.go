@@ -56,7 +56,7 @@ func UpdateHosts(slavePods []string) {
 }
 
 func createSlaves(configFile string, component string) {
-	slaves := viper.GetInt("AMBARI_NODES")
+	slaves := viper.GetInt("ambari.AMBARI_NODES")
 	for v := 1; v <= slaves; v++ {
 		slave := util.Slave{fmt.Sprintf("amb-slave%d", v)}
 		util.GenerateConfig(configFile, "ambari", slave)

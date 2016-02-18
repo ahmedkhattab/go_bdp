@@ -36,6 +36,17 @@ func ConfigStruct() Config {
 		viper.GetString("ambari.AMBARI_BLUEPRINT_URL")}
 }
 
+func SetDefaults() {
+	viper.SetDefault("ambari",
+		map[string]interface{}{"AMBARI_BLUEPRINT": "ha-hdfs",
+			"AMBARI_BLUEPRINT_URL": "https =//goo.gl/GRVbkp",
+			"AMBARI_NODES":         4})
+	viper.SetDefault("spark", map[string]interface{}{"SPARK_WORKERS": 5})
+	viper.SetDefault("kafka", map[string]interface{}{"KAFKA_NODES": 2})
+	viper.SetDefault("rabbitmq", map[string]interface{}{"RABBITMQ_NODES": 3})
+	viper.SetDefault("cassandra", map[string]interface{}{"CASSANDRA_NODES": 3})
+}
+
 //SetEnvVars sets the environment variables needed for the kube-up script based
 //on values provided in the yaml config file
 func SetEnvVars() {
@@ -62,6 +73,9 @@ func GenerateConfig(templateName string, component string, data interface{}) {
 	}
 
 	outputFile, err := os.Create(filepath.Join(viper.GetString("BDP_CONFIG_DIR"), "tmp", templateName))
+	if err != nil {
+		log.Fatalf("GenerateConfig: Error creating config file: %s \n", err)
+	}
 	err = tmpl.ExecuteTemplate(outputFile, templateName, data)
 	if err != nil {
 		log.Fatalf("GenerateConfig: Error generating configuration from template: %s \n", err)
