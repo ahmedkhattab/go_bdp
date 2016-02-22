@@ -26,10 +26,12 @@ func CleanUp() {
 	util.ReleasePID("spark")
 }
 
-func Start(config util.Config) {
-	if util.IsRunning("spark") {
-		log.Println("Spark: already running, skipping start ...")
-		return
+func Start(config util.Config, forceDeploy bool) {
+	if !forceDeploy {
+		if util.IsRunning("spark") {
+			log.Println("Spark: already running, skipping start ...")
+			return
+		}
 	}
 	CleanUp()
 

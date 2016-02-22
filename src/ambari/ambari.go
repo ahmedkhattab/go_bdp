@@ -94,10 +94,12 @@ func GetNamenode() string {
 	return hostname
 }
 
-func Start(config util.Config) {
-	if util.IsRunning("ambari") {
-		log.Println("Ambari: already running, skipping start ...")
-		return
+func Start(config util.Config, forceDeploy bool) {
+	if !forceDeploy {
+		if util.IsRunning("ambari") {
+			log.Println("Ambari: already running, skipping start ...")
+			return
+		}
 	}
 	CleanUp()
 

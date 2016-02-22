@@ -25,10 +25,12 @@ func CleanUp() {
 	util.ReleasePID("cassandra")
 }
 
-func Start(config util.Config) {
-	if util.IsRunning("cassandra") {
-		log.Println("Cassandra: already running, skipping start ...")
-		return
+func Start(config util.Config, forceDeploy bool) {
+	if !forceDeploy {
+		if util.IsRunning("cassandra") {
+			log.Println("Cassandra: already running, skipping start ...")
+			return
+		}
 	}
 	CleanUp()
 

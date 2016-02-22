@@ -36,20 +36,25 @@ func ConfigStruct() Config {
 		viper.GetString("ambari.AMBARI_BLUEPRINT_URL")}
 }
 
-func SetDefaults() {
-	viper.SetDefault("ambari",
-		map[string]interface{}{"AMBARI_BLUEPRINT": "ha-hdfs",
-			"AMBARI_BLUEPRINT_URL": "https =//goo.gl/GRVbkp",
-			"AMBARI_NODES":         4})
-	viper.SetDefault("spark", map[string]interface{}{"SPARK_WORKERS": 5})
-	viper.SetDefault("kafka", map[string]interface{}{"KAFKA_NODES": 2})
-	viper.SetDefault("rabbitmq", map[string]interface{}{"RABBITMQ_NODES": 3})
-	viper.SetDefault("cassandra", map[string]interface{}{"CASSANDRA_NODES": 3})
+func SetDefaultConfig() {
+	viper.SetConfigType("toml")
+	viper.SetConfigName("defaults")
+	viper.AddConfigPath(".")
+	viper.AddConfigPath("../src/bdp")
+
+	err := viper.ReadInConfig()
+	if err != nil {
+		log.Fatalf("Error loading config file: %s \n", err)
+	}
+	for key, value := range viper.AllSettings() {
+		viper.SetDefault(key, value)
+	}
+	setEnvVars()
 }
 
 //SetEnvVars sets the environment variables needed for the kube-up script based
 //on values provided in the yaml config file
-func SetEnvVars() {
+func setEnvVars() {
 	os.Setenv("KUBERNETES_PROVIDER", viper.GetString("KUBERNETES_PROVIDER"))
 	os.Setenv("KUBE_AWS_ZONE", viper.GetString("KUBE_AWS_ZONE"))
 	os.Setenv("NUM_MINIONS", viper.GetString("NUM_MINIONS"))

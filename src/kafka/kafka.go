@@ -27,10 +27,12 @@ func CleanUp() {
 	util.ReleasePID("kafka")
 }
 
-func Start(config util.Config) {
-	if util.IsRunning("kafka") {
-		log.Println("Kafka: already running, skipping start ...")
-		return
+func Start(config util.Config, forceDeploy bool) {
+	if !forceDeploy {
+		if util.IsRunning("kafka") {
+			log.Println("Kafka: already running, skipping start ...")
+			return
+		}
 	}
 	CleanUp()
 

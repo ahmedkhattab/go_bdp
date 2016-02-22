@@ -25,10 +25,12 @@ func CleanUp() {
 	util.ReleasePID("rabbitmq")
 }
 
-func Start(config util.Config) {
-	if util.IsRunning("rabbitmq") {
-		log.Println("Rabbitmq: already running, skipping start ...")
-		return
+func Start(config util.Config, forceDeploy bool) {
+	if !forceDeploy {
+		if util.IsRunning("rabbitmq") {
+			log.Println("Rabbitmq: already running, skipping start ...")
+			return
+		}
 	}
 	CleanUp()
 

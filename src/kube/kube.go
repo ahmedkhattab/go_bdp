@@ -72,7 +72,7 @@ func GetPods() string {
 func PodNames(prefix string) []string {
 	pods := kube("get pods", "--no-headers")
 	cut := exec.Command("cut", "-d", " ", "-f", "1")
-	grep := exec.Command("grep", "amb-slave")
+	grep := exec.Command("grep", prefix)
 	out, err := pipeCommands(pods, cut, grep)
 	if err != nil {
 		log.Fatal(err)
@@ -109,9 +109,10 @@ func PodHostIP(pod string) string {
 
 //PodHostName returns the node name of the input pod
 func PodHostName(pod string) string {
-	out, err := kube("get pod", pod, "-o template", "--template={{.spec.nodeName}}").Output()
+	fmt.Println(PodNames(pod)[0])
+	out, err := kube("get pod", PodNames(pod)[0], "-o template", "--template={{.spec.nodeName}}").Output()
 	if err != nil {
-		log.Fatal(err)
+		return ""
 	}
 	return string(out)
 }
@@ -119,9 +120,13 @@ func PodHostName(pod string) string {
 //PodPublicIP returns the public ip of the host of the input pod
 func PodPublicIP(pod string) string {
 	hostName := PodHostName(pod)
+	if hostName == "" {
+		return "n/a"
+	}
 	out, err := kube("get node", hostName, "-o template", "'--template={{(index .status.addresses 2).address}}'").Output()
 	if err != nil {
-		log.Fatal(err)
+		log.Println(err)
+		return "n/a"
 	}
 	return string(out)
 }
