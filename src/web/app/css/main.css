@@ -1,0 +1,78 @@
+
+
+/* ==========================================================================
+   Author's custom styles
+   ========================================================================== */
+
+   .collapse, .collapsing {
+   	 width: 130px;
+   }
+   .btn-component {
+     width: 110px;
+     height: 110px;
+     border-bottom: none;
+   }
+   .btn-spark {
+   	background:url(../img/spark.png) no-repeat !important;
+   	background-size: 80px !important;
+   	background-position: center !important;
+   }
+
+   .btn-rabbitmq {
+
+   	background:url(../img/rabbitmq.jpg) no-repeat !important;
+   	background-size: 100px !important;
+   	background-position: center !important;
+   }
+
+   .btn-ambari {
+   	background:url(../img/ambari.png) no-repeat !important;
+   	background-size: 80px !important;
+   	background-position: center !important;
+   }
+
+   .btn-kafka {
+   	background:url(../img/kafka.png) no-repeat !important;
+   	background-size: 90px !important;
+   	background-position: center !important;
+   }
+   .btn-cass {
+   	background:url(../img/cassandra.jpg) no-repeat !important;
+   	background-size: 90px !important;
+   	background-position: center !important;
+   }
+
+   /* General button style (reset) */
+   .btn-cstm {
+   	font-family: inherit;
+   	font-size: inherit;
+   	color: inherit;
+   	background: none;
+   	cursor: pointer;
+   	padding: 25px 60px;
+   	display: inline-block;
+   	margin: 15px 0px;
+   	text-transform: uppercase;
+   	letter-spacing: 1px;
+   	font-weight: 700;
+   	outline: none;
+   	position: relative;
+   	-webkit-transition: all 0.3s;
+   	-moz-transition: all 0.3s;
+   	transition: all 0.3s;
+   }
+
+
+   .btn-2b.down {
+   	box-shadow: 0 6px #3C763D;
+   }
+
+   .btn-2b.down:hover {
+   	box-shadow: 0 8px #3C763D;
+   	top: -2px;
+   }
+
+   .btn-2b.down:active {
+   	box-shadow: 0 0 #3C763D;
+   	top: 6px;
+   }

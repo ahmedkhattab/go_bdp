@@ -9,6 +9,6 @@ func hello(val string) string {
 }
 
 func main() {
-	web.Get("/hello", hello)
-	web.Run("0.0.0.0:9999")
+	web.Get("/hello/(.*)", hello)
+	web.Run("localhost:9999")
 }
