@@ -1,0 +1,232 @@
+<!doctype html>
+<!--[if lt IE 7]>      <html class="no-js lt-ie9 lt-ie8 lt-ie7" lang=""> <![endif]-->
+<!--[if IE 7]>         <html class="no-js lt-ie9 lt-ie8" lang=""> <![endif]-->
+<!--[if IE 8]>         <html class="no-js lt-ie9" lang=""> <![endif]-->
+<!--[if gt IE 8]><!-->
+<html class="no-js" lang="">
+<!--<![endif]-->
+
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <title>bdp</title>
+  <meta name="description" content="">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="apple-touch-icon" href="apple-touch-icon.png">
+  <link rel="stylesheet" href="css/bootstrap.min.css">
+
+  <style>
+    body {
+      padding-top: 50px;
+      padding-bottom: 20px;
+    }
+  </style>
+  <link rel="stylesheet" href="css/main.css">
+  <link rel="stylesheet" type="text/css" href="css/default.css" />
+  <link rel="stylesheet" type="text/css" href="css/component.css" />
+
+  <script src="js/vendor/modernizr-2.8.3-respond-1.4.2.min.js"></script>
+</head>
+
+<body>
+  <!--[if lt IE 8]>
+            <p class="browserupgrade">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</p>
+        <![endif]-->
+  <nav class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+    <div class="container">
+      <div class="navbar-header">
+        <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+          <span class="sr-only">Toggle navigation</span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+        <a class="navbar-brand" href="#">BDP</a>
+      </div>
+      <!--
+        <div id="navbar" class="navbar-collapse collapse">
+          <form class="navbar-form navbar-right" role="form">
+            <div class="form-group">
+              <input type="text" placeholder="Email" class="form-control">
+            </div>
+            <div class="form-group">
+              <input type="password" placeholder="Password" class="form-control">
+            </div>
+            <button type="submit" class="btn btn-success">Sign in</button>
+          </form>
+        </div>
+      -->
+    </div>
+  </nav>
+
+  <!-- Main jumbotron for a primary marketing message or call to action -->
+  <div class="container">
+    <h1>Big Data Platform Deployment Panel</h1>
+    <p></p>
+  </div>
+  <form action="/deploy" method="post" class="form-horizontal">
+
+  <div class="container">
+    <!-- Example row of columns -->
+    <div class="row">
+      <div class="col-md-3">
+        <h2>Spark</h2>
+        <p>
+          <button type="button" class="btn-cstm btn-2 btn-2b btn-spark btn-component">
+            <input type="hidden" name="spark" value="false"/>
+          </button>
+        </p>
+        <button class="btn btn-default" type="button" aria-label="Left Align" data-toggle="collapse" data-target="#confSpark" aria-expanded="false" aria-controls="confSpark">
+          <span class="glyphicon glyphicon-cog" aria-hidden="true"></span> Configure
+        </button>
+        <div class="collapse" id="confSpark">
+          <br />
+          <div class="well">
+              <div class="form-group">
+                <label class="col-sm-10" for="spark_workers">N. of workers</label>
+                <div class="col-sm-7">
+                  <input type="number" name="SPARK_WORKERS" id="spark_workers" class="form-control" value="5">
+                </div>
+              </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <h2>Ambari</h2>
+        <p>
+          <button type="button" class="btn-cstm btn-2 btn-2b btn-ambari btn-component">
+            <input type="hidden" name="ambari" value="false"/>
+          </button>
+        </p>
+        <button class="btn btn-default" type="button" aria-label="Left Align" data-toggle="collapse" data-target="#confAmbari" aria-expanded="false" aria-controls="confAmbari">
+          <span class="glyphicon glyphicon-cog" aria-hidden="true"></span> Configure
+        </button>
+        <div class="collapse" id="confAmbari">
+          <br/>
+          <div class="well">
+            <form class="form-horizontal">
+              <div class="form-group">
+                <label class="col-sm-10" for="ambari_nodes">N. of nodes</label>
+                <div class="col-sm-7">
+                  <input type="number" name="AMABARI_NODES" id="ambari_nodes" class="form-control" value="4">
+                </div>
+              </div>
+              <div class="form-group">
+                <label class="col-sm-10" for="ambari_blueprint">Blueprint Name</label>
+                <div class="col-sm-10">
+                  <input type="text" name="AMBARI_BLUEPRINT" id="ambari_blueprint" class="form-control" placeholder="hd-hdfs">
+                </div>
+
+              </div>
+              <div class="form-group">
+                <label class="col-sm-10" for="ambari_blueprint">Blueprint URL</label>
+                <div class="col-sm-10">
+                  <input type="text" name="AMBARI_BLUEPRINT_URL" id="ambari_blueprint_url" class="form-control">
+                </div>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <h2>Rabbitmq</h2>
+        <p>
+          <button type="button" class="btn-cstm btn-2 btn-2b btn-rabbitmq btn-component" name="rabbitmq">
+            <input type="hidden"  name="rabbitmq" value="false"/>
+          </button>
+        </p>
+        <button class="btn btn-default" type="button" aria-label="Left Align" data-toggle="collapse" data-target="#confRabbit" aria-expanded="false" aria-controls="confRabbit">
+          <span class="glyphicon glyphicon-cog" aria-hidden="true"></span> Configure
+        </button>
+        <div class="collapse" id="confRabbit">
+          <br/>
+          <div class="well">
+            <form class="form-horizontal">
+              <div class="form-group">
+                <label class="col-sm-10" for="rabbitmq_nodes">N. of nodes</label>
+                <div class="col-sm-7">
+                  <input type="number" name="RABBITMQ_NODES" id="rabbitmq_nodes" class="form-control" value="3">
+                </div>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <h2>Kafka</h2>
+        <p>
+          <button type="button" class="btn-cstm btn-2 btn-2b btn-kafka btn-component" name="kafka">
+            <input type="hidden" name="kafka" value="false"/>
+          </button>
+        </p>
+        <button class="btn btn-default" type="button" aria-label="Left Align" data-toggle="collapse" data-target="#confKafka" aria-expanded="false" aria-controls="confKafka">
+          <span class="glyphicon glyphicon-cog" aria-hidden="true"></span> Configure
+        </button>
+        <div class="collapse" id="confKafka">
+          <br/>
+          <div class="well">
+            <form class="form-horizontal">
+              <div class="form-group">
+                <label class="col-sm-10" for="kafka_nodes">N. of nodes</label>
+                <div class="col-sm-7">
+                  <input type="number" name="KAFKA_NODES" id="kafka_nodes" class="form-control" value="2">
+                </div>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-md-3">
+        <h2>Cassandra</h2>
+        <p>
+          <button type="button" class="btn-cstm btn-2 btn-2b btn-cass btn-component" name="cassandra">
+            <input type="hidden" name="cassandra" value="false"/>
+          </button>
+        </p>
+        <button class="btn btn-default" type="button" aria-label="Left Align" data-toggle="collapse" data-target="#confCassandra" aria-expanded="false" aria-controls="confCassandra">
+          <span class="glyphicon glyphicon-cog" aria-hidden="true"></span> Configure
+        </button>
+        <div class="collapse" id="confCassandra">
+          <br/>
+          <div class="well">
+            <form class="form-horizontal">
+              <div class="form-group">
+                <label class="col-sm-10" for="cassandra_nodes">N. of nodes</label>
+                <div class="col-sm-7">
+                  <input type="number" name="CASSANDRA_NODES" id="cassandra_nodes" class="form-control" value="3">
+                </div>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <hr>
+    <div class="row">
+      <div class="col-md-2 col-md-offset-10">
+          <button class="btn btn-lg btn-success" type="submit" aria-label="Left Align"> Deploy <span class="glyphicon glyphicon-cloud-upload" aria-hidden="true"></span>
+          </button>
+      </div>
+    </div>
+    <footer>
+      <p>&copy; Ahmed Khattab 2016</p>
+    </footer>
+
+  </div>
+</form>
+
+  <!-- /container -->
+  <script>
+    window.jQuery || document.write('<script src="js/vendor/jquery-1.11.2.min.js"><\/script>')
+  </script>
+
+  <script src="js/vendor/bootstrap.min.js"></script>
+
+  <script src="js/main.js"></script>
+
+</body>
+
+</html>

@@ -1,14 +1,15 @@
 package main
 
 import (
-	"github.com/hoisie/web"
+	"log"
+	"net/http"
 )
 
-func hello(val string) string {
-	return "hello " + val
-}
-
 func main() {
-	web.Get("/hello/(.*)", hello)
-	web.Run("localhost:9999")
+	fs := http.FileServer(http.Dir("../src/web/static"))
+	http.Handle("/static/", http.StripPrefix("/static/", fs))
+	http.Handle("/", fs)
+
+	log.Println("Listening...")
+	http.ListenAndServe(":3000", nil)
 }
