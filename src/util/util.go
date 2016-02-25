@@ -4,6 +4,7 @@ import (
 	"log"
 	"os"
 	"path/filepath"
+	"reflect"
 	"text/template"
 
 	"github.com/spf13/viper"
@@ -17,6 +18,11 @@ type Config struct {
 	KafkaNodes         int
 	AmbariBlueprint    string
 	AmbariBlueprintURL string
+	Ambari             bool
+	Spark              bool
+	Kafka              bool
+	Cassandra          bool
+	Rabbitmq           bool
 }
 
 type Slave struct {
@@ -27,13 +33,23 @@ type Slave struct {
 //parameters to be used by the template engine to generate kubernetes resources
 //config files
 func ConfigStruct() Config {
-	return Config{viper.GetInt("ambari.AMBARI_NODES"),
-		viper.GetInt("cassandra.CASSANDRA_NODES"),
-		viper.GetInt("rabbitmq.RABBITMQ_NODES"),
-		viper.GetInt("spark.SPARK_WORKERS"),
-		viper.GetInt("kafka.KAFKA_NODES"),
-		viper.GetString("ambari.AMBARI_BLUEPRINT"),
-		viper.GetString("ambari.AMBARI_BLUEPRINT_URL")}
+	return Config{AmbariNodes: viper.GetInt("ambari.AMBARI_NODES"),
+		CassandraNodes:     viper.GetInt("cassandra.CASSANDRA_NODES"),
+		RabbitmqNodes:      viper.GetInt("rabbitmq.RABBITMQ_NODES"),
+		SparkWorkers:       viper.GetInt("spark.SPARK_WORKERS"),
+		KafkaNodes:         viper.GetInt("kafka.KAFKA_NODES"),
+		AmbariBlueprint:    viper.GetString("ambari.AMBARI_BLUEPRINT"),
+		AmbariBlueprintURL: viper.GetString("ambari.AMBARI_BLUEPRINT_URL"),
+		Ambari:             viper.InConfig("ambari"),
+		Kafka:              viper.InConfig("kafka"),
+		Cassandra:          viper.InConfig("cassandra"),
+		Rabbitmq:           viper.InConfig("rabbitmq"),
+		Spark:              viper.InConfig("spark")}
+}
+
+func (config *Config) Set(component string) {
+	s := reflect.ValueOf(&config).Elem()
+	s.FieldByName(component).SetBool(true)
 }
 
 func SetDefaultConfig() {

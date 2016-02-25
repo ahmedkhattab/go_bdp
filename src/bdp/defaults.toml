@@ -14,7 +14,7 @@ BDP_CONFIG_DIR = "/home/khattab/BDP"
 [ambari]
 AMBARI_NODES = 4
 AMBARI_BLUEPRINT = "ha-hdfs"
-AMBARI_BLUEPRINT_URL = "https =//goo.gl/GRVbkp"
+AMBARI_BLUEPRINT_URL = "https://goo.gl/GRVbkp"
 
 [rabbitmq]
 RABBITMQ_NODES = 3
