@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"os"
 	"reflect"
 	"strconv"
 	"text/template"
@@ -12,6 +13,13 @@ import (
 )
 
 func deploy(w http.ResponseWriter, r *http.Request) {
+	logfile, err := os.Create("../src/web/static/log.out")
+	if err != nil {
+		log.Fatalf("error opening file: %v", err)
+	}
+	defer logfile.Close()
+	log.SetOutput(logfile)
+
 	config := util.ConfigStruct()
 	s := reflect.ValueOf(&config).Elem()
 	typeOfT := s.Type()
@@ -32,6 +40,7 @@ func deploy(w http.ResponseWriter, r *http.Request) {
 		}
 		fmt.Println(s.Field(i))
 	}
+
 	w.Write([]byte(launcher.LaunchComponents(false, false, config)))
 }
 

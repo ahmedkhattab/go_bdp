@@ -12,6 +12,13 @@
      height: 110px;
      border-bottom: none;
    }
+
+.loading {
+  background: url(../img/ajax-loader.gif) no-repeat scroll 10px 10px transparent;
+  background-size: 23px;
+  padding-left: 41px;
+}
+
    .btn-spark {
    	background:url(../img/spark.png) no-repeat !important;
    	background-size: 80px !important;

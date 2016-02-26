@@ -1,4 +1,5 @@
 
+var poll = true;
 $(document).ready(function(){
   $('.btn-2b').each(function() {
     var input = $(this).children('input');
@@ -12,33 +13,73 @@ $(document).ready(function(){
     input.val(input.val() === "true" ? "false" : "true");
   });
 
-  var l = Ladda.create($('#submit'));
   $("#mainForm").submit(function(e)
   {
       var postData = $(this).serializeArray();
       var formURL = $(this).attr("action");
+      $("#progress_panel").show();
       $.ajax(
       {
           url : formURL,
           type: "POST",
           data : postData,
-          beforeSend:function(jqXHR) {
-            l.start()
-          },
           success:function(data, textStatus, jqXHR)
           {
-              alert(data)
-              l.stop()
+              poll = false;
+              $('#submit').html('Deploy <span class="glyphicon glyphicon-cloud-upload" aria-hidden="true"></span>').removeClass(
+										'loading')
+								.addClass(
+										'btn-success').data("stop",0);
+                    alert("done !");
+
           },
           error: function(jqXHR, textStatus, errorThrown)
           {
-              //if fails
-          }
+          },
       });
-      e.preventDefault(); //STOP default action
+      pollLog();
+      e.preventDefault();
+      e.stopPropagation(); //STOP default action
   });
 $('#submit').click(function(){
+  var $this = $(this);
+  if($this.data("stop")==1)
+    return;
+  $this.addClass("loading")
+        .removeClass('btn-success')
+				.addClass('btn-default')
+        .text("deploying...")
+        .data("stop",1);
+
   $("#mainForm").submit(); //Submit  the FORM
+
 });
 
 });
+var previous_text = '';
+function pollLog() {
+  $.ajax(
+  {
+      url : "/static/log.out",
+      type: "GET",
+      success:function(data, textStatus, jqXHR)
+      {
+          var new_text = data.substring(previous_text.length);
+          console.log(previous_text.length)
+          console.log(new_text)
+          if(new_text != '')
+            $("#log").append(new_text.split('\n').join('<br/>'));
+            $("#log").animate({
+              scrollTop: $('#log')[0].scrollHeight}, 1500);
+          if(poll === true) {
+            setTimeout( function() { previous_text = data; pollLog(); }, 2000);
+          }
+          else {
+            poll = true;
+         }
+      },
+      error: function(jqXHR, textStatus, errorThrown)
+      {
+      }
+  });
+}

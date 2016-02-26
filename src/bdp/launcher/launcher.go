@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"kafka"
 	"kube"
+	"log"
 	"os"
 	"path/filepath"
 	"rabbitmq"
@@ -39,10 +40,10 @@ func LaunchComponents(allFlag bool, forceFlag bool, config util.Config) string {
 			cassandra.Start(config, forceFlag)
 			stdout += fmt.Sprintf("Cassandra accessible through %s:31317\n", kube.PodPublicIP("cassandra"))
 		}
-		fmt.Println(kube.GetPods())
-		fmt.Print(stdout)
+		log.Println(kube.GetPods())
+		log.Print(stdout)
 		return stdout + "\n" + kube.GetPods()
 	}
-	fmt.Println("Cluster is not running, run bdp start first")
+	log.Println("Cluster is not running, run bdp start first")
 	return "Cluster is not running, run bdp start first"
 }
