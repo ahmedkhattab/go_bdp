@@ -20,6 +20,7 @@ func deploy(w http.ResponseWriter, r *http.Request) {
 	defer logfile.Close()
 	log.SetOutput(logfile)
 
+	log.Println("Starting deployment ...")
 	config := util.ConfigStruct()
 	s := reflect.ValueOf(&config).Elem()
 	typeOfT := s.Type()

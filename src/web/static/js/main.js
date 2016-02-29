@@ -15,9 +15,9 @@ $(document).ready(function(){
 
   $("#mainForm").submit(function(e)
   {
+      setInterval (type, 600);
       var postData = $(this).serializeArray();
       var formURL = $(this).attr("action");
-      $("#progress_panel").show();
       $.ajax(
       {
           url : formURL,
@@ -30,8 +30,6 @@ $(document).ready(function(){
 										'loading')
 								.addClass(
 										'btn-success').data("stop",0);
-                    alert("done !");
-
           },
           error: function(jqXHR, textStatus, errorThrown)
           {
@@ -75,6 +73,7 @@ function pollLog() {
             setTimeout( function() { previous_text = data; pollLog(); }, 2000);
           }
           else {
+            alert("done !");
             poll = true;
          }
       },
@@ -82,4 +81,20 @@ function pollLog() {
       {
       }
   });
+}
+
+var dots = 0;
+
+function type()
+{
+    if(dots < 3)
+    {
+        $('#dots').append('.');
+        dots++;
+    }
+    else
+    {
+        $('#dots').html('');
+        dots = 0;
+    }
 }
