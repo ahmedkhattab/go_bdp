@@ -292,12 +292,12 @@
 	border-radius: 8px 8px 8px 8px;
 }
 
-.btn-2b:hover {
+.btn-2b:hover:enabled {
 	box-shadow: 0 8px #ab3c3c;
 	top: -2px;
 }
 
-.btn-2b:active {
+.btn-2b:active:enabled {
 	box-shadow: 0 0 #ab3c3c;
 	top: 6px;
 }

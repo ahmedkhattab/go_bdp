@@ -13,6 +13,7 @@ import (
 )
 
 func deploy(w http.ResponseWriter, r *http.Request) {
+
 	logfile, err := os.Create("../src/web/static/log.out")
 	if err != nil {
 		log.Fatalf("error opening file: %v", err)
@@ -41,13 +42,24 @@ func deploy(w http.ResponseWriter, r *http.Request) {
 		}
 		fmt.Println(s.Field(i))
 	}
-
-	w.Write([]byte(launcher.LaunchComponents(false, false, config)))
+	_, deployed := launcher.LaunchComponents(false, false, config)
+	for key, value := range deployed {
+		config.Set(key, value)
+	}
+	fmt.Println(config)
+	t, err := template.ParseFiles("../src/web/static/deploy.html")
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	err = t.Execute(w, config)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+	}
 }
 
 func index(w http.ResponseWriter, r *http.Request) {
-	config := util.ConfigStruct()
-	config.Kafka = true
+	config := util.InitConfigStruct()
 	t, err := template.ParseFiles("../src/web/static/index.html")
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)

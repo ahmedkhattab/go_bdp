@@ -16,8 +16,9 @@ import (
 	"github.com/spf13/viper"
 )
 
-func LaunchComponents(allFlag bool, forceFlag bool, config util.Config) string {
+func LaunchComponents(allFlag bool, forceFlag bool, config util.Config) (string, map[string]bool) {
 	stdout := ""
+	deployed := make(map[string]bool)
 	if kube.ClusterIsUp() {
 		os.Mkdir(filepath.Join(viper.GetString("BDP_CONFIG_DIR"), "tmp"), 0777)
 		if allFlag || config.Ambari {
@@ -35,15 +36,24 @@ func LaunchComponents(allFlag bool, forceFlag bool, config util.Config) string {
 		if allFlag || config.Spark {
 			spark.Start(config, forceFlag)
 			stdout += fmt.Sprintf("Spark UI accessible through http://%s:31314\n", kube.PodPublicIP("spark-master"))
+
 		}
 		if allFlag || config.Cassandra {
 			cassandra.Start(config, forceFlag)
 			stdout += fmt.Sprintf("Cassandra accessible through %s:31317\n", kube.PodPublicIP("cassandra"))
 		}
+
+		deployed["Ambari"] = util.IsRunning("ambari")
+		deployed["Rabbitmq"] = util.IsRunning("rabbitmq")
+		deployed["Kafka"] = util.IsRunning("kafka")
+		deployed["Spark"] = util.IsRunning("spark")
+		deployed["Cassandra"] = util.IsRunning("cassandra")
 		log.Println(kube.GetPods())
-		log.Print(stdout)
-		return stdout + "\n" + kube.GetPods()
+		if stdout != "" {
+			log.Print(stdout)
+		}
+		return stdout + "\n" + kube.GetPods(), deployed
 	}
 	log.Println("Cluster is not running, run bdp start first")
-	return "Cluster is not running, run bdp start first"
+	return "Cluster is not running, run bdp start first", nil
 }

@@ -29,6 +29,16 @@ type Slave struct {
 	AmbariSlaveName string
 }
 
+func InitConfigStruct() Config {
+	return Config{AmbariNodes: viper.GetInt("ambari.AMBARI_NODES"),
+		CassandraNodes:     viper.GetInt("cassandra.CASSANDRA_NODES"),
+		RabbitmqNodes:      viper.GetInt("rabbitmq.RABBITMQ_NODES"),
+		SparkWorkers:       viper.GetInt("spark.SPARK_WORKERS"),
+		KafkaNodes:         viper.GetInt("kafka.KAFKA_NODES"),
+		AmbariBlueprint:    viper.GetString("ambari.AMBARI_BLUEPRINT"),
+		AmbariBlueprintURL: viper.GetString("ambari.AMBARI_BLUEPRINT_URL")}
+}
+
 //ConfigStruct creates an instance of the config structure out of the config
 //parameters to be used by the template engine to generate kubernetes resources
 //config files
@@ -47,9 +57,9 @@ func ConfigStruct() Config {
 		Spark:              viper.InConfig("spark")}
 }
 
-func (config *Config) Set(component string) {
-	s := reflect.ValueOf(&config).Elem()
-	s.FieldByName(component).SetBool(true)
+func (config *Config) Set(component string, value bool) {
+	s := reflect.ValueOf(config).Elem()
+	s.FieldByName(component).SetBool(value)
 }
 
 func SetDefaultConfig() {

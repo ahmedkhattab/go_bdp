@@ -1,0 +1,224 @@
+<!doctype html>
+<!--[if lt IE 7]>      <html class="no-js lt-ie9 lt-ie8 lt-ie7" lang=""> <![endif]-->
+<!--[if IE 7]>         <html class="no-js lt-ie9 lt-ie8" lang=""> <![endif]-->
+<!--[if IE 8]>         <html class="no-js lt-ie9" lang=""> <![endif]-->
+<!--[if gt IE 8]><!-->
+<html class="no-js" lang="">
+<!--<![endif]-->
+
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <title>bdp</title>
+  <meta name="description" content="">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="apple-touch-icon" href="apple-touch-icon.png">
+  <link rel="stylesheet" href="/static/css/bootstrap.min.css">
+
+  <style>
+    body {
+      padding-top: 50px;
+      padding-bottom: 20px;
+    }
+  </style>
+  <link rel="stylesheet" href="/static/css/main.css">
+  <link rel="stylesheet" type="text/css" href="/static/css/default.css" />
+  <link rel="stylesheet" type="text/css" href="/static/css/component.css" />
+
+  <script src="/static/js/vendor/modernizr-2.8.3-respond-1.4.2.min.js"></script>
+</head>
+
+<body>
+  <!--[if lt IE 8]>
+            <p class="browserupgrade">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</p>
+        <![endif]-->
+  <nav class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+    <div class="container">
+      <div class="navbar-header">
+        <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+          <span class="sr-only">Toggle navigation</span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+        <a class="navbar-brand" href="/">BDP</a>
+      </div>
+      <!--
+        <div id="navbar" class="navbar-collapse collapse">
+          <form class="navbar-form navbar-right" role="form">
+            <div class="form-group">
+              <input type="text" placeholder="Email" class="form-control">
+            </div>
+            <div class="form-group">
+              <input type="password" placeholder="Password" class="form-control">
+            </div>
+            <button type="submit" class="btn btn-success">Sign in</button>
+          </form>
+        </div>
+      -->
+    </div>
+  </nav>
+
+  <!-- Main jumbotron for a primary marketing message or call to action -->
+  <div class="container">
+    <h1>Big Data Platform Deployment Panel</h1>
+    <p>Select which components to deploy and optionally change the configuration parameters</p>
+  </div>
+  <form action="/deploy" method="post" class="form-horizontal" id="mainForm">
+
+    <div class="container" id="mainContainer">
+
+    <!-- Example row of columns -->
+    <div class="row">
+      <div class="col-md-3">
+        <h2>Spark</h2>
+        <p>
+          <button type="button" class="btn-cstm btn-2 btn-2b btn-spark btn-component" disabled>
+            <input type="hidden" name="Spark" value="{{.Spark}}"/>
+            <span class="checkmark" style="display: none;">
+              <div class="checkmark_circle"></div>
+              <div class="checkmark_stem"></div>
+              <div class="checkmark_kick"></div>
+            </span>
+          </button>
+        </p>
+        <button class="btn btn-default" type="button" aria-label="Left Align" data-toggle="collapse" data-target="#confSpark" aria-expanded="false" aria-controls="confSpark">
+          <span class="glyphicon glyphicon-eye-open" aria-hidden="true"></span> Details
+        </button>
+        <div class="collapse" id="confSpark">
+          <br />
+          <div class="well">
+
+          </div>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <h2>Ambari</h2>
+        <p>
+          <button type="button" class="btn-cstm btn-2 btn-2b btn-ambari btn-component" disabled>
+            <input type="hidden" name="Ambari" value="{{.Ambari}}"/>
+            <span class="checkmark" style="display: none;">
+              <div class="checkmark_circle"></div>
+              <div class="checkmark_stem"></div>
+              <div class="checkmark_kick"></div>
+            </span>
+          </button>
+        </p>
+        <button class="btn btn-default" type="button" aria-label="Left Align" data-toggle="collapse" data-target="#confAmbari" aria-expanded="false" aria-controls="confAmbari">
+          <span class="glyphicon glyphicon-eye-open" aria-hidden="true"></span> Details
+        </button>
+        <div class="collapse" id="confAmbari">
+          <br/>
+          <div class="well">
+
+          </div>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <h2>Rabbitmq</h2>
+        <p>
+          <button type="button" class="btn-cstm btn-2 btn-2b btn-rabbitmq btn-component" disabled>
+            <input type="hidden"  name="Rabbitmq" value="{{.Rabbitmq}}"/>
+            <span class="checkmark" style="display: none;">
+              <div class="checkmark_circle"></div>
+              <div class="checkmark_stem"></div>
+              <div class="checkmark_kick"></div>
+            </span>
+          </button>
+        </p>
+        <button class="btn btn-default" type="button" aria-label="Left Align" data-toggle="collapse" data-target="#confRabbit" aria-expanded="false" aria-controls="confRabbit">
+          <span class="glyphicon glyphicon-eye-open" aria-hidden="true"></span> Details
+        </button>
+        <div class="collapse" id="confRabbit">
+          <br/>
+          <div class="well">
+
+          </div>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <h2>Kafka</h2>
+        <p>
+          <button type="button" class="btn-cstm btn-2 btn-2b btn-kafka btn-component" disabled>
+            <input type="hidden" name="Kafka" value="{{.Kafka}}"/>
+            <span class="checkmark" style="display: none;">
+              <div class="checkmark_circle"></div>
+              <div class="checkmark_stem"></div>
+              <div class="checkmark_kick"></div>
+            </span>
+          </button>
+        </p>
+        <button class="btn btn-default" type="button" aria-label="Left Align" data-toggle="collapse" data-target="#confKafka" aria-expanded="false" aria-controls="confKafka">
+          <span class="glyphicon glyphicon-eye-open" aria-hidden="true"></span> Details
+        </button>
+        <div class="collapse" id="confKafka">
+          <br/>
+          <div class="well">
+
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col-md-3">
+        <h2>Cassandra</h2>
+        <p>
+          <button type="button" class="btn-cstm btn-2 btn-2b btn-cass btn-component" disabled>
+            <input type="hidden" name="Cassandra" value="{{.Cassandra}}"/>
+            <span class="checkmark" style="display: none;">
+              <div class="checkmark_circle"></div>
+              <div class="checkmark_stem"></div>
+              <div class="checkmark_kick"></div>
+            </span>
+          </button>
+        </p>
+        <button class="btn btn-default" type="button" aria-label="Left Align" data-toggle="collapse" data-target="#confCassandra" aria-expanded="false" aria-controls="confCassandra">
+          <span class="glyphicon glyphicon-eye-open" aria-hidden="true"></span> Details
+        </button>
+        <div class="collapse" id="confCassandra">
+          <br/>
+          <div class="well">
+
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+  <hr>
+  <div class="row">
+    <div class="col-md-2 col-md-offset-10">
+      <button type="button" id="submit" class="btn btn-success btn-lg"> Deploy <span class="glyphicon glyphicon-cloud-upload" aria-hidden="true"></span></button>
+    </div>
+  </div>
+  <footer>
+    <p>&copy; Ahmed Khattab 2016</p>
+  </footer>
+</form>
+
+<!-- Modal -->
+<div class="modal fade" id="progressModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"  data-backdrop="static"
+ data-keyboard="false" >
+<div class="modal-dialog" role="document">
+  <div class="modal-content">
+    <div class="modal-header">
+      <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+      <h4 class="modal-title" id="myModalLabel">Deployment in progress<span id="dots"></span></h4>
+    </div>
+    <div class="modal-body" id="log" style="min-height: 100px;max-height: 155px;overflow-y: scroll;">
+    </div>
+    <div class="modal-footer">
+      <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+    </div>
+  </div>
+</div>
+</div>
+<!-- /container -->
+<script src="/static/js/vendor/jquery-1.11.2.min.js"></script>
+<script src="/static/js/vendor/bootstrap.min.js"></script>
+<script src="/static/js/main.js"></script>
+
+</body>
+
+</html>
