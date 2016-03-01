@@ -32,39 +32,44 @@
   <!--[if lt IE 8]>
             <p class="browserupgrade">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</p>
         <![endif]-->
-  <nav class="navbar navbar-inverse navbar-fixed-top" role="navigation">
-    <div class="container">
-      <div class="navbar-header">
-        <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
-          <span class="sr-only">Toggle navigation</span>
-          <span class="icon-bar"></span>
-          <span class="icon-bar"></span>
-          <span class="icon-bar"></span>
-        </button>
-        <a class="navbar-brand" href="/">BDP</a>
-      </div>
-      <!--
-        <div id="navbar" class="navbar-collapse collapse">
-          <form class="navbar-form navbar-right" role="form">
-            <div class="form-group">
-              <input type="text" placeholder="Email" class="form-control">
+        <nav class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+          <div class="container">
+            <div class="navbar-header">
+              <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+              </button>
+              <a class="navbar-brand" href="/">BDP</a>
             </div>
-            <div class="form-group">
-              <input type="password" placeholder="Password" class="form-control">
+            <div id="navbar" class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+              <ul class="nav navbar-nav">
+                <li ><a href="/">Deploy </a></li>
+                <li class="active"><a href="/details">Details <span class="sr-only">(current)</span></a></li>
+              </ul>
             </div>
-            <button type="submit" class="btn btn-success">Sign in</button>
-          </form>
-        </div>
-      -->
-    </div>
-  </nav>
-
+            <!--
+              <div id="navbar" class="navbar-collapse collapse">
+                <form class="navbar-form navbar-right" role="form">
+                  <div class="form-group">
+                    <input type="text" placeholder="Email" class="form-control">
+                  </div>
+                  <div class="form-group">
+                    <input type="password" placeholder="Password" class="form-control">
+                  </div>
+                  <button type="submit" class="btn btn-success">Sign in</button>
+                </form>
+              </div>
+            -->
+          </div>
+        </nav>
   <!-- Main jumbotron for a primary marketing message or call to action -->
   <div class="container">
     <h1>Big Data Platform Deployment Panel</h1>
     <p>Select which components to deploy and optionally change the configuration parameters</p>
   </div>
-  <form action="/deploy" method="post" class="form-horizontal" id="mainForm">
+  <form action="/details" method="post" class="form-horizontal" id="mainForm">
 
     <div class="container" id="mainContainer">
 
@@ -82,7 +87,7 @@
             </span>
           </button>
         </p>
-        <button class="btn btn-default" type="button" aria-label="Left Align" data-toggle="collapse" data-target="#confSpark" aria-expanded="false" aria-controls="confSpark">
+        <button class="btn btn-default conf-btn" type="button" aria-label="Left Align" data-toggle="collapse" data-target="#confSpark" aria-expanded="false" aria-controls="confSpark" disabled>
           <span class="glyphicon glyphicon-eye-open" aria-hidden="true"></span> Details
         </button>
         <div class="collapse" id="confSpark">
@@ -104,7 +109,7 @@
             </span>
           </button>
         </p>
-        <button class="btn btn-default" type="button" aria-label="Left Align" data-toggle="collapse" data-target="#confAmbari" aria-expanded="false" aria-controls="confAmbari">
+        <button class="btn btn-default conf-btn" type="button" aria-label="Left Align" data-toggle="collapse" data-target="#confAmbari" aria-expanded="false" aria-controls="confAmbari" disabled>
           <span class="glyphicon glyphicon-eye-open" aria-hidden="true"></span> Details
         </button>
         <div class="collapse" id="confAmbari">
@@ -126,7 +131,7 @@
             </span>
           </button>
         </p>
-        <button class="btn btn-default" type="button" aria-label="Left Align" data-toggle="collapse" data-target="#confRabbit" aria-expanded="false" aria-controls="confRabbit">
+        <button class="btn btn-default conf-btn" type="button" aria-label="Left Align" data-toggle="collapse" data-target="#confRabbit" aria-expanded="false" aria-controls="confRabbit" disabled>
           <span class="glyphicon glyphicon-eye-open" aria-hidden="true"></span> Details
         </button>
         <div class="collapse" id="confRabbit">
@@ -148,7 +153,7 @@
             </span>
           </button>
         </p>
-        <button class="btn btn-default" type="button" aria-label="Left Align" data-toggle="collapse" data-target="#confKafka" aria-expanded="false" aria-controls="confKafka">
+        <button class="btn btn-default conf-btn" type="button" aria-label="Left Align" data-toggle="collapse" data-target="#confKafka" aria-expanded="false" aria-controls="confKafka" disabled>
           <span class="glyphicon glyphicon-eye-open" aria-hidden="true"></span> Details
         </button>
         <div class="collapse" id="confKafka">
@@ -173,7 +178,7 @@
             </span>
           </button>
         </p>
-        <button class="btn btn-default" type="button" aria-label="Left Align" data-toggle="collapse" data-target="#confCassandra" aria-expanded="false" aria-controls="confCassandra">
+        <button class="btn btn-default conf-btn" type="button" aria-label="Left Align" data-toggle="collapse" data-target="#confCassandra" aria-expanded="false" aria-controls="confCassandra" disabled>
           <span class="glyphicon glyphicon-eye-open" aria-hidden="true"></span> Details
         </button>
         <div class="collapse" id="confCassandra">
@@ -217,7 +222,7 @@
 <!-- /container -->
 <script src="/static/js/vendor/jquery-1.11.2.min.js"></script>
 <script src="/static/js/vendor/bootstrap.min.js"></script>
-<script src="/static/js/main.js"></script>
+<script src="/static/js/details.js"></script>
 
 </body>
 

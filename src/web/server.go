@@ -12,8 +12,26 @@ import (
 	"util"
 )
 
+func details(w http.ResponseWriter, r *http.Request) {
+	config := util.ConfigStruct()
+
+	t, err := template.ParseFiles("../src/web/static/details.html")
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	err = t.Execute(w, config)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+	}
+}
+
 func deploy(w http.ResponseWriter, r *http.Request) {
 
+	if r.ContentLength == 0 {
+		http.Redirect(w, r, "/", http.StatusBadRequest)
+		return
+	}
 	logfile, err := os.Create("../src/web/static/log.out")
 	if err != nil {
 		log.Fatalf("error opening file: %v", err)
@@ -46,16 +64,8 @@ func deploy(w http.ResponseWriter, r *http.Request) {
 	for key, value := range deployed {
 		config.Set(key, value)
 	}
-	fmt.Println(config)
-	t, err := template.ParseFiles("../src/web/static/deploy.html")
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-	err = t.Execute(w, config)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-	}
+	http.Redirect(w, r, "/details", http.StatusOK)
+	return
 }
 
 func index(w http.ResponseWriter, r *http.Request) {
@@ -77,6 +87,7 @@ func main() {
 	http.Handle("/static/", http.StripPrefix("/static/", fs))
 	http.HandleFunc("/", index)
 	http.HandleFunc("/deploy", deploy)
+	http.HandleFunc("/details", details)
 
 	log.Println("Listening...")
 	http.ListenAndServe(":3000", nil)
