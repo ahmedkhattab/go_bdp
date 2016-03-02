@@ -1,11 +1,12 @@
 var poll = true;
 
 function refreshToggleBtns() {
-  $('.btn-2b').each(function() {
+  $('.btn-cstm').each(function() {
     var input = $(this).children('input');
     var tick = $(this).children('.checkmark');
     var stopped = $(this).children('.stopped');
     if (input.val() === "true") {
+      $(this).addClass("running");
       tick.show();
       stopped.hide();
     }

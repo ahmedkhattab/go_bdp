@@ -79,7 +79,7 @@
         <p class="component-container">
           <button type="button" class="btn-cstm btn-spark" data-toggle="popover" title="Details" data-content=" {{.statuses.Spark.Message}}">
             <input type="hidden" name="Spark" value="{{.statuses.Spark.State}}"/>
-            <span class="stopped glyphicon glyphicon-ban-circle"/>
+            <span class="stopped glyphicon glyphicon-ban-circle"></span>
             <span class="checkmark" style="display: none;">
               <div class="checkmark_circle"></div>
               <div class="checkmark_stem"></div>
@@ -94,7 +94,7 @@
         <p>
           <button type="button" class="btn-cstm btn-ambari" data-toggle="popover" title="Details" data-content="{{.statuses.Ambari.Message}}">
             <input type="hidden" name="Ambari" value="{{.statuses.Ambari.State}}"/>
-            <span class="stopped glyphicon glyphicon-ban-circle"/>
+            <span class="stopped glyphicon glyphicon-ban-circle"></span>
             <span class="checkmark" style="display: none;">
               <div class="checkmark_circle"></div>
               <div class="checkmark_stem"></div>
@@ -108,12 +108,11 @@
         <p>
           <button type="button" class="btn-cstm btn-rabbitmq"  data-toggle="popover" title="Details" data-content="{{.statuses.Rabbitmq.Message}}">
             <input type="hidden"  name="Rabbitmq" value="{{.statuses.Rabbitmq.State}}"/>
-              <span class="stopped glyphicon glyphicon-ban-circle"/>
+              <span class="stopped glyphicon glyphicon-ban-circle"></span>
               <span class="checkmark" style="display: none;">
-
-              <div class="checkmark_circle"></div>
-              <div class="checkmark_stem"></div>
-              <div class="checkmark_kick"></div>
+                <div class="checkmark_circle"></div>
+                <div class="checkmark_stem"></div>
+                <div class="checkmark_kick"></div>
             </span>
           </button>
         </p>
@@ -123,7 +122,7 @@
         <p>
           <button type="button" class="btn-cstm btn-kafka"  data-toggle="popover" title="Details" data-content="{{.statuses.Kafka.Message}}">
             <input type="hidden" name="Kafka" value="{{.statuses.Kafka.State}}"/>
-            <span class="stopped glyphicon glyphicon-ban-circle"/>
+            <span class="stopped glyphicon glyphicon-ban-circle"></span>
             <span class="checkmark" style="display: none;">
               <div class="checkmark_circle"></div>
               <div class="checkmark_stem"></div>
@@ -139,7 +138,7 @@
         <p>
           <button type="button" class="btn-cstm btn-cass"  data-toggle="popover" title="Details" data-content="{{.statuses.Cassandra.Message}}">
             <input type="hidden" name="Cassandra" value="{{.statuses.Cassandra.State}}"/>
-            <span class="stopped glyphicon glyphicon-ban-circle"/>
+            <span class="stopped glyphicon glyphicon-ban-circle"></span>
             <span class="checkmark" style="display: none;">
               <div class="checkmark_circle"></div>
               <div class="checkmark_stem"></div>
@@ -151,11 +150,6 @@
     </div>
   </div>
   <hr>
-  <div class="row">
-    <div class="col-md-2 col-md-offset-10">
-      <button type="button" id="submit" class="btn btn-success btn-lg"> Deploy <span class="glyphicon glyphicon-cloud-upload" aria-hidden="true"></span></button>
-    </div>
-  </div>
   <footer>
     <p>&copy; Ahmed Khattab 2016</p>
   </footer>
