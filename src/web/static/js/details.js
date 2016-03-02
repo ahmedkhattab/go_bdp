@@ -3,10 +3,11 @@ var poll = true;
 function refreshToggleBtns() {
   $('.btn-2b').each(function() {
     var input = $(this).children('input');
-    var tick = $(this).children('span');
+    var tick = $(this).children('.checkmark');
+    var stopped = $(this).children('.stopped');
     if (input.val() === "true") {
-      $(this).addClass("down");
       tick.show();
+      stopped.hide();
     }
   });
 }
@@ -36,6 +37,7 @@ function resetSubmitBtn() {
 
 $(document).ready(function() {
   refreshToggleBtns();
+  $('[data-toggle="popover"]').popover()
 
   $('.btn-2b').click(function() {
     $(this).toggleClass("down");

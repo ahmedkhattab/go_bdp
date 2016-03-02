@@ -1,0 +1,2 @@
+[rabbitmq]
+RABBITMQ_NODES = 3

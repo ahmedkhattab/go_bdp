@@ -1,7 +1,7 @@
 package main
 
 import (
-	"bdp/launcher"
+	"cod/launcher"
 	"flag"
 	"fmt"
 	"kube"
@@ -19,13 +19,14 @@ func main() {
 	util.SetDefaultConfig()
 
 	if len(os.Args) == 1 {
-		fmt.Println("usage: bdp <command> [<args>]")
+		fmt.Println("usage: decap <command> [<args>]")
 		fmt.Println("Commands: ")
 		fmt.Println("\tstart   starts the cluster")
 		fmt.Println("\tstop    stops the cluster")
 		fmt.Println("\trestart stops the current cluster and restarts a new one")
 		fmt.Println("\treset   removes all deployed components")
-		fmt.Println("\tinfo    lists all pods running on the cluster and the cluster info")
+		fmt.Println("\tinfo    lists the cluster info")
+		fmt.Println("\tpods    lists all pods running on the cluster")
 		fmt.Println("\tdeploy  deploys bdp components on a running cluster")
 		return
 	}
@@ -49,8 +50,9 @@ func main() {
 		deployCommand.Parse(os.Args[2:])
 	case "reset":
 		kube.ResetCluster()
-	case "info":
+	case "pods":
 		fmt.Println(kube.GetPods())
+	case "info":
 		fmt.Println(kube.ClusterInfo())
 	case "test":
 		test()
@@ -61,7 +63,7 @@ func main() {
 
 	if deployCommand.Parsed() {
 		if len(os.Args[2:]) == 0 {
-			fmt.Println("usage: bdp deploy [<args>]")
+			fmt.Println("usage: decap deploy [<args>]")
 			fmt.Println("args: ")
 			fmt.Println("  -conf    path to a toml config file")
 			fmt.Println("  -f       force deployment (removes running components first)")

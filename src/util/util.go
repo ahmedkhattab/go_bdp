@@ -86,7 +86,7 @@ func SetDefaultConfig() {
 	viper.SetConfigType("toml")
 	viper.SetConfigName("defaults")
 	viper.AddConfigPath(".")
-	viper.AddConfigPath("../src/bdp")
+	viper.AddConfigPath("../src/cod")
 
 	err := viper.ReadInConfig()
 	if err != nil {

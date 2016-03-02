@@ -9,9 +9,7 @@
      height: 110px;
      max-width: 200px;
    }
-   .shift {
-     margin-right: -40px;
-   }
+   
    .checkmark {
        display:inline-block;
        width: 120px;
@@ -58,11 +56,6 @@
      top: -43px;
      font-size: 20px;
    }
-   .btn-component {
-     width: 110px;
-     height: 110px;
-     border-bottom: none;
-   }
 
   .loading {
     background: url(../img/ajax-loader.gif) no-repeat scroll 10px 10px transparent;
@@ -102,10 +95,11 @@
 
    /* General button style (reset) */
    .btn-cstm {
+     width: 110px;
+     height: 110px;
+     border-bottom: none;
    	font-family: inherit;
    	font-size: inherit;
-   	color: inherit;
-   	background: none;
    	cursor: pointer;
    	padding: 25px 60px;
    	display: inline-block;
@@ -115,24 +109,53 @@
    	font-weight: 700;
    	outline: none;
    	position: relative;
+    border-radius: 8px 8px 8px 8px;
+    background: #cb4e4e;
+    color: #fff;
+    box-shadow: 0 6px #ab3c3c;
+    -webkit-transition: none;
+    -moz-transition: none;
+    transition: none;
+
+   }
+
+
+   .btn-cstm:after {
+   	content: '';
+   	position: absolute;
+   	z-index: -1;
    	-webkit-transition: all 0.3s;
    	-moz-transition: all 0.3s;
    	transition: all 0.3s;
    }
+
+   /* Pseudo elements for icons */
+   .btn-cstm:before {
+   	font-family: 'icomoon';
+   	speak: none;
+   	font-style: normal;
+   	font-weight: normal;
+   	font-variant: normal;
+   	text-transform: none;
+   	line-height: 1;
+   	position: relative;
+   	-webkit-font-smoothing: antialiased;
+   }
+
 .component-container > a:focus, a:hover{
   outline: none;
 }
 
-   .btn-2b.down {
+   .btn-cstm.down {
    	box-shadow: 0 6px #3C763D;
    }
 
-   .btn-2b.down:hover:enabled {
+   .btn-cstm.down:hover:enabled {
    	box-shadow: 0 8px #3C763D;
    	top: -2px;
    }
 
-   .btn-2b.down:active:enabled {
+   .btn-cstm.down:active:enabled {
    	box-shadow: 0 0 #3C763D;
    	top: 6px;
    }

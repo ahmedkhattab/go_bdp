@@ -9,7 +9,7 @@
 <head>
   <meta charset="utf-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
-  <title>bdp</title>
+  <title>CoD</title>
   <meta name="description" content="">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="apple-touch-icon" href="apple-touch-icon.png">
@@ -21,9 +21,8 @@
       padding-bottom: 20px;
     }
   </style>
-  <link rel="stylesheet" href="/static/css/main.css">
+  <link rel="stylesheet" href="/static/css/details.css">
   <link rel="stylesheet" type="text/css" href="/static/css/default.css" />
-  <link rel="stylesheet" type="text/css" href="/static/css/component.css" />
 
   <script src="/static/js/vendor/modernizr-2.8.3-respond-1.4.2.min.js"></script>
 </head>
@@ -66,8 +65,8 @@
         </nav>
   <!-- Main jumbotron for a primary marketing Message or call to action -->
   <div class="container">
-    <h1>Big Data Platform Deployment Panel</h1>
-    <p>Select which components to deploy and optionally change the configuration parameters</p>
+    <h1>Compute Platform Deployment Panel</h1>
+    <p>View which components are deployed and endpoints information</p>
   </div>
   <form action="/details" method="post" class="form-horizontal" id="mainForm">
 
@@ -75,11 +74,12 @@
 
     <!-- Example row of columns -->
     <div class="row">
-      <div class="col-md-3">
+      <div class="col-md-3 shift">
         <h2>Spark</h2>
-        <p>
-          <button type="button" class="btn-cstm btn-2 btn-2b btn-spark btn-component" disabled>
+        <p class="component-container">
+          <button type="button" class="btn-cstm btn-spark" data-toggle="popover" title="Details" data-content=" {{.statuses.Spark.Message}}">
             <input type="hidden" name="Spark" value="{{.statuses.Spark.State}}"/>
+            <span class="stopped glyphicon glyphicon-ban-circle"/>
             <span class="checkmark" style="display: none;">
               <div class="checkmark_circle"></div>
               <div class="checkmark_stem"></div>
@@ -88,18 +88,13 @@
           </button>
         </p>
       </div>
-      <div class="col-md-3">
-          <div class="well details">
-            {{.statuses.Spark.Message}}
-          </div>
-      </div>
-    </div>
-    <div class="row">
-      <div class="col-md-3">
+
+      <div class="col-md-3 shift">
         <h2>Ambari</h2>
         <p>
-          <button type="button" class="btn-cstm btn-2 btn-2b btn-ambari btn-component" disabled>
+          <button type="button" class="btn-cstm btn-ambari" data-toggle="popover" title="Details" data-content="{{.statuses.Ambari.Message}}">
             <input type="hidden" name="Ambari" value="{{.statuses.Ambari.State}}"/>
+            <span class="stopped glyphicon glyphicon-ban-circle"/>
             <span class="checkmark" style="display: none;">
               <div class="checkmark_circle"></div>
               <div class="checkmark_stem"></div>
@@ -108,19 +103,14 @@
           </button>
         </p>
       </div>
-      <div class="col-md-3">
-        <div class="well details">
-          {{.statuses.Ambari.Message}}
-        </div>
-      </div>
-    </div>
-    <div class="row">
-      <div class="col-md-3">
+      <div class="col-md-3 shift">
         <h2>Rabbitmq</h2>
         <p>
-          <button type="button" class="btn-cstm btn-2 btn-2b btn-rabbitmq btn-component" disabled>
+          <button type="button" class="btn-cstm btn-rabbitmq"  data-toggle="popover" title="Details" data-content="{{.statuses.Rabbitmq.Message}}">
             <input type="hidden"  name="Rabbitmq" value="{{.statuses.Rabbitmq.State}}"/>
-            <span class="checkmark" style="display: none;">
+              <span class="stopped glyphicon glyphicon-ban-circle"/>
+              <span class="checkmark" style="display: none;">
+
               <div class="checkmark_circle"></div>
               <div class="checkmark_stem"></div>
               <div class="checkmark_kick"></div>
@@ -128,18 +118,12 @@
           </button>
         </p>
       </div>
-      <div class="col-md-3">
-        <div class="well details">
-          {{.statuses.Rabbitmq.Message}}
-        </div>
-      </div>
-    </div>
-    <div class="row">
-      <div class="col-md-3">
+      <div class="col-md-3 shift">
         <h2>Kafka</h2>
         <p>
-          <button type="button" class="btn-cstm btn-2 btn-2b btn-kafka btn-component" disabled>
+          <button type="button" class="btn-cstm btn-kafka"  data-toggle="popover" title="Details" data-content="{{.statuses.Kafka.Message}}">
             <input type="hidden" name="Kafka" value="{{.statuses.Kafka.State}}"/>
+            <span class="stopped glyphicon glyphicon-ban-circle"/>
             <span class="checkmark" style="display: none;">
               <div class="checkmark_circle"></div>
               <div class="checkmark_stem"></div>
@@ -148,19 +132,14 @@
           </button>
         </p>
       </div>
-      <div class="col-md-3">
-        <div class="well details">
-          {{.statuses.Kafka.Message}}
-        </div>
-      </div>
     </div>
-
-    <div class="row">
-      <div class="col-md-3">
+        <div class="row">
+      <div class="col-md-3 shift">
         <h2>Cassandra</h2>
         <p>
-          <button type="button" class="btn-cstm btn-2 btn-2b btn-cass btn-component" disabled>
+          <button type="button" class="btn-cstm btn-cass"  data-toggle="popover" title="Details" data-content="{{.statuses.Cassandra.Message}}">
             <input type="hidden" name="Cassandra" value="{{.statuses.Cassandra.State}}"/>
+            <span class="stopped glyphicon glyphicon-ban-circle"/>
             <span class="checkmark" style="display: none;">
               <div class="checkmark_circle"></div>
               <div class="checkmark_stem"></div>
@@ -169,14 +148,7 @@
           </button>
         </p>
       </div>
-      <div class="col-md-3">
-        <div class="well details">
-          {{.statuses.Cassandra.Message}}
-        </div>
-      </div>
     </div>
-  </div>
-
   </div>
   <hr>
   <div class="row">
