@@ -1,6 +1,7 @@
 package spark
 
 import (
+	"fmt"
 	"kube"
 	"log"
 	"time"
@@ -67,4 +68,13 @@ func Start(config util.Config, forceDeploy bool) {
 	log.Println("Spark: Launching spark driver")
 	kube.CreateResource(viper.GetString("BDP_CONFIG_DIR") + "/spark/spark-driver.json")
 	util.SetPID("spark")
+}
+
+func Status() util.Status {
+	status := util.Status{false, "Not Running"}
+	if util.IsRunning("spark") {
+		status.State = true
+		status.Message = fmt.Sprintf("Spark UI accessible through http://%s:31314\n", kube.PodPublicIP("spark-master"))
+	}
+	return status
 }

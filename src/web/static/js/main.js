@@ -44,13 +44,11 @@ $(document).ready(function() {
   });
 
   $("#mainForm").submit(function(e) {
-
-    var postData = $(this).serializeArray();
-    var formURL = $(this).attr("action");
     setInterval(type, 600);
     $('#progressModal').modal('show');
-
-    pollLog();
+    setTimeout(function() {
+      pollLog();
+    }, 1500);
   });
 
   $('#submit').click(function(e) {
@@ -80,6 +78,7 @@ function pollLog() {
     url: "/static/log.out",
     type: "GET",
     success: function(data, textStatus, jqXHR) {
+
       var new_text = data.substring(previous_text.length);
       console.log(previous_text.length)
       console.log(new_text)
@@ -87,7 +86,7 @@ function pollLog() {
         $("#log").append(new_text.split('\n').join('<br/>'));
       $("#log").animate({
         scrollTop: $('#log')[0].scrollHeight
-      }, 1500);
+      }, 500);
       if (poll === true) {
         setTimeout(function() {
           previous_text = data;
@@ -99,6 +98,7 @@ function pollLog() {
         }, 2000);
         poll = true;
       }
+
     },
     error: function(jqXHR, textStatus, errorThrown) {}
   });

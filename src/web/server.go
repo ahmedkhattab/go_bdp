@@ -12,32 +12,34 @@ import (
 	"util"
 )
 
+type pageData map[string]interface{}
+
 func details(w http.ResponseWriter, r *http.Request) {
 	config := util.ConfigStruct()
-
+	statuses := launcher.ComponentsStatuses()
+	fmt.Println(statuses)
 	t, err := template.ParseFiles("../src/web/static/details.html")
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	err = t.Execute(w, config)
+	err = t.Execute(w, pageData{"config": config, "statuses": statuses})
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}
 }
 
 func deploy(w http.ResponseWriter, r *http.Request) {
-
-	if r.ContentLength == 0 {
-		http.Redirect(w, r, "/", http.StatusBadRequest)
-		return
-	}
 	logfile, err := os.Create("../src/web/static/log.out")
 	if err != nil {
 		log.Fatalf("error opening file: %v", err)
 	}
 	defer logfile.Close()
 	log.SetOutput(logfile)
+	if r.ContentLength == 0 {
+		http.Redirect(w, r, "/", http.StatusBadRequest)
+		return
+	}
 
 	log.Println("Starting deployment ...")
 	config := util.ConfigStruct()
@@ -60,11 +62,8 @@ func deploy(w http.ResponseWriter, r *http.Request) {
 		}
 		fmt.Println(s.Field(i))
 	}
-	_, deployed := launcher.LaunchComponents(false, false, config)
-	for key, value := range deployed {
-		config.Set(key, value)
-	}
-	http.Redirect(w, r, "/details", http.StatusOK)
+	launcher.LaunchComponents(false, false, config)
+	http.Redirect(w, r, "/details", http.StatusFound)
 	return
 }
 

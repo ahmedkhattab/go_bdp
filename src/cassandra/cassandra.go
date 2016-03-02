@@ -1,6 +1,7 @@
 package cassandra
 
 import (
+	"fmt"
 	"kube"
 	"log"
 	"time"
@@ -49,4 +50,13 @@ func Start(config util.Config, forceDeploy bool) {
 	}
 	kube.CreateResource(viper.GetString("BDP_CONFIG_DIR") + "/cassandra/cassandra-service.json")
 	util.SetPID("cassandra")
+}
+
+func Status() util.Status {
+	status := util.Status{false, "Not Running"}
+	if util.IsRunning("cassandra") {
+		status.State = true
+		status.Message = fmt.Sprintf("Cassandra accessible through %s:31317\n", kube.PodPublicIP("cassandra"))
+	}
+	return status
 }

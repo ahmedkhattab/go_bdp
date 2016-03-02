@@ -25,6 +25,18 @@ type Config struct {
 	Rabbitmq           bool
 }
 
+type Status struct {
+	State   bool
+	Message string
+}
+
+type Statuses struct {
+	Ambari    Status
+	Spark     Status
+	Kafka     Status
+	Cassandra Status
+	Rabbitmq  Status
+}
 type Slave struct {
 	AmbariSlaveName string
 }
@@ -37,6 +49,14 @@ func InitConfigStruct() Config {
 		KafkaNodes:         viper.GetInt("kafka.KAFKA_NODES"),
 		AmbariBlueprint:    viper.GetString("ambari.AMBARI_BLUEPRINT"),
 		AmbariBlueprintURL: viper.GetString("ambari.AMBARI_BLUEPRINT_URL")}
+}
+
+func InitStatusesStruct() Statuses {
+	return Statuses{Spark: Status{false, "Not Running"},
+		Cassandra: Status{false, "Not Running"},
+		Ambari:    Status{false, "Not Running"},
+		Rabbitmq:  Status{false, "Not Running"},
+		Kafka:     Status{false, "Not Running"}}
 }
 
 //ConfigStruct creates an instance of the config structure out of the config
@@ -57,7 +77,7 @@ func ConfigStruct() Config {
 		Spark:              viper.InConfig("spark")}
 }
 
-func (config *Config) Set(component string, value bool) {
+func (config *Config) SetState(component string, value bool) {
 	s := reflect.ValueOf(config).Elem()
 	s.FieldByName(component).SetBool(value)
 }

@@ -1,6 +1,7 @@
 package rabbitmq
 
 import (
+	"fmt"
 	"kube"
 	"log"
 	"time"
@@ -50,4 +51,13 @@ func Start(config util.Config, forceDeploy bool) {
 
 	kube.CreateResource(viper.GetString("BDP_CONFIG_DIR") + "/rabbitmq/rabbitmq-service.json")
 	util.SetPID("rabbitmq")
+}
+
+func Status() util.Status {
+	status := util.Status{false, "Not Running"}
+	if util.IsRunning("rabbitmq") {
+		status.State = true
+		status.Message = fmt.Sprintf("RabbitMQ UI accessible through http://%s:31316\n", kube.PodPublicIP("rabbitmq"))
+	}
+	return status
 }

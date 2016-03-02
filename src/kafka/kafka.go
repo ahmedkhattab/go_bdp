@@ -1,6 +1,7 @@
 package kafka
 
 import (
+	"fmt"
 	"kube"
 	"log"
 	"time"
@@ -68,4 +69,13 @@ func Start(config util.Config, forceDeploy bool) {
 		}
 	}
 	util.SetPID("kafka")
+}
+
+func Status() util.Status {
+	status := util.Status{false, "Not Running"}
+	if util.IsRunning("kafka") {
+		status.State = true
+		status.Message = fmt.Sprintf("Kafka accessible through http://%s:31318\n", kube.PodPublicIP("kafka"))
+	}
+	return status
 }

@@ -7,6 +7,7 @@ import (
 	"kube"
 	"log"
 	"os"
+	"reflect"
 	"spark"
 	"util"
 
@@ -77,7 +78,6 @@ func main() {
 				log.Fatalf("Error loading config file: %s \n", err)
 			}
 			//fmt.Println(viper.AllSettings())
-
 		}
 
 		if *clusterFlag != "" {
@@ -85,7 +85,13 @@ func main() {
 		}
 		config := util.ConfigStruct()
 		fmt.Println(config)
-		launcher.LaunchComponents(*allFlag, *forceFlag, config)
+		statuses := launcher.LaunchComponents(*allFlag, *forceFlag, config)
+		v := reflect.ValueOf(statuses)
+		for i := 0; i < v.NumField(); i++ {
+			if v.Field(i).FieldByName("State").Bool() {
+				fmt.Println(v.Field(i).FieldByName("Message"))
+			}
+		}
 	}
 }
 

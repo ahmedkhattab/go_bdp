@@ -174,3 +174,12 @@ func Start(config util.Config, forceDeploy bool) {
 	kube.Expose("pod", GetNamenode(), "--port=8020", "--target-port=8020", "--name=namenode")
 	util.SetPID("ambari")
 }
+
+func Status() util.Status {
+	status := util.Status{false, "Not Running"}
+	if util.IsRunning("ambari") {
+		status.State = true
+		status.Message = fmt.Sprintf("Ambari UI accessible through http://%s:31313\n", kube.PodPublicIP("amb-server"))
+	}
+	return status
+}

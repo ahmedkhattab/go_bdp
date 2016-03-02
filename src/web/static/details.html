@@ -64,7 +64,7 @@
             -->
           </div>
         </nav>
-  <!-- Main jumbotron for a primary marketing message or call to action -->
+  <!-- Main jumbotron for a primary marketing Message or call to action -->
   <div class="container">
     <h1>Big Data Platform Deployment Panel</h1>
     <p>Select which components to deploy and optionally change the configuration parameters</p>
@@ -79,7 +79,7 @@
         <h2>Spark</h2>
         <p>
           <button type="button" class="btn-cstm btn-2 btn-2b btn-spark btn-component" disabled>
-            <input type="hidden" name="Spark" value="{{.Spark}}"/>
+            <input type="hidden" name="Spark" value="{{.statuses.Spark.State}}"/>
             <span class="checkmark" style="display: none;">
               <div class="checkmark_circle"></div>
               <div class="checkmark_stem"></div>
@@ -87,21 +87,19 @@
             </span>
           </button>
         </p>
-        <button class="btn btn-default conf-btn" type="button" aria-label="Left Align" data-toggle="collapse" data-target="#confSpark" aria-expanded="false" aria-controls="confSpark" disabled>
-          <span class="glyphicon glyphicon-eye-open" aria-hidden="true"></span> Details
-        </button>
-        <div class="collapse" id="confSpark">
-          <br />
-          <div class="well">
-
-          </div>
-        </div>
       </div>
+      <div class="col-md-3">
+          <div class="well details">
+            {{.statuses.Spark.Message}}
+          </div>
+      </div>
+    </div>
+    <div class="row">
       <div class="col-md-3">
         <h2>Ambari</h2>
         <p>
           <button type="button" class="btn-cstm btn-2 btn-2b btn-ambari btn-component" disabled>
-            <input type="hidden" name="Ambari" value="{{.Ambari}}"/>
+            <input type="hidden" name="Ambari" value="{{.statuses.Ambari.State}}"/>
             <span class="checkmark" style="display: none;">
               <div class="checkmark_circle"></div>
               <div class="checkmark_stem"></div>
@@ -109,21 +107,19 @@
             </span>
           </button>
         </p>
-        <button class="btn btn-default conf-btn" type="button" aria-label="Left Align" data-toggle="collapse" data-target="#confAmbari" aria-expanded="false" aria-controls="confAmbari" disabled>
-          <span class="glyphicon glyphicon-eye-open" aria-hidden="true"></span> Details
-        </button>
-        <div class="collapse" id="confAmbari">
-          <br/>
-          <div class="well">
-
-          </div>
+      </div>
+      <div class="col-md-3">
+        <div class="well details">
+          {{.statuses.Ambari.Message}}
         </div>
       </div>
+    </div>
+    <div class="row">
       <div class="col-md-3">
         <h2>Rabbitmq</h2>
         <p>
           <button type="button" class="btn-cstm btn-2 btn-2b btn-rabbitmq btn-component" disabled>
-            <input type="hidden"  name="Rabbitmq" value="{{.Rabbitmq}}"/>
+            <input type="hidden"  name="Rabbitmq" value="{{.statuses.Rabbitmq.State}}"/>
             <span class="checkmark" style="display: none;">
               <div class="checkmark_circle"></div>
               <div class="checkmark_stem"></div>
@@ -131,21 +127,19 @@
             </span>
           </button>
         </p>
-        <button class="btn btn-default conf-btn" type="button" aria-label="Left Align" data-toggle="collapse" data-target="#confRabbit" aria-expanded="false" aria-controls="confRabbit" disabled>
-          <span class="glyphicon glyphicon-eye-open" aria-hidden="true"></span> Details
-        </button>
-        <div class="collapse" id="confRabbit">
-          <br/>
-          <div class="well">
-
-          </div>
+      </div>
+      <div class="col-md-3">
+        <div class="well details">
+          {{.statuses.Rabbitmq.Message}}
         </div>
       </div>
+    </div>
+    <div class="row">
       <div class="col-md-3">
         <h2>Kafka</h2>
         <p>
           <button type="button" class="btn-cstm btn-2 btn-2b btn-kafka btn-component" disabled>
-            <input type="hidden" name="Kafka" value="{{.Kafka}}"/>
+            <input type="hidden" name="Kafka" value="{{.statuses.Kafka.State}}"/>
             <span class="checkmark" style="display: none;">
               <div class="checkmark_circle"></div>
               <div class="checkmark_stem"></div>
@@ -153,14 +147,10 @@
             </span>
           </button>
         </p>
-        <button class="btn btn-default conf-btn" type="button" aria-label="Left Align" data-toggle="collapse" data-target="#confKafka" aria-expanded="false" aria-controls="confKafka" disabled>
-          <span class="glyphicon glyphicon-eye-open" aria-hidden="true"></span> Details
-        </button>
-        <div class="collapse" id="confKafka">
-          <br/>
-          <div class="well">
-
-          </div>
+      </div>
+      <div class="col-md-3">
+        <div class="well details">
+          {{.statuses.Kafka.Message}}
         </div>
       </div>
     </div>
@@ -170,7 +160,7 @@
         <h2>Cassandra</h2>
         <p>
           <button type="button" class="btn-cstm btn-2 btn-2b btn-cass btn-component" disabled>
-            <input type="hidden" name="Cassandra" value="{{.Cassandra}}"/>
+            <input type="hidden" name="Cassandra" value="{{.statuses.Cassandra.State}}"/>
             <span class="checkmark" style="display: none;">
               <div class="checkmark_circle"></div>
               <div class="checkmark_stem"></div>
@@ -178,17 +168,14 @@
             </span>
           </button>
         </p>
-        <button class="btn btn-default conf-btn" type="button" aria-label="Left Align" data-toggle="collapse" data-target="#confCassandra" aria-expanded="false" aria-controls="confCassandra" disabled>
-          <span class="glyphicon glyphicon-eye-open" aria-hidden="true"></span> Details
-        </button>
-        <div class="collapse" id="confCassandra">
-          <br/>
-          <div class="well">
-
-          </div>
+      </div>
+      <div class="col-md-3">
+        <div class="well details">
+          {{.statuses.Cassandra.Message}}
         </div>
       </div>
     </div>
+  </div>
 
   </div>
   <hr>
