@@ -51,6 +51,8 @@ func Start(config util.Config, forceDeploy bool) {
 
 	kube.CreateResource(viper.GetString("BDP_CONFIG_DIR") + "/rabbitmq/rabbitmq-service.json")
 	util.SetPID("rabbitmq")
+	log.Println("Rabbitmq: done")
+
 }
 
 func Status() util.Status {

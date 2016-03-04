@@ -69,6 +69,8 @@ func Start(config util.Config, forceDeploy bool) {
 		}
 	}
 	util.SetPID("kafka")
+	log.Println("Kafka: Done!")
+
 }
 
 func Status() util.Status {

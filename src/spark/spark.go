@@ -51,7 +51,7 @@ func Start(config util.Config, forceDeploy bool) {
 	kube.CreateResource(viper.GetString("BDP_CONFIG_DIR") + "/spark/spark-master-service.json")
 
 	log.Println("Spark: Launching spark workers")
-
+	time.Sleep(5 * time.Second)
 	util.GenerateConfig("spark-worker-controller.json", "spark", config)
 	kube.CreateResource(viper.GetString("BDP_CONFIG_DIR") + "/tmp/spark-worker-controller.json")
 
@@ -68,6 +68,8 @@ func Start(config util.Config, forceDeploy bool) {
 	log.Println("Spark: Launching spark driver")
 	kube.CreateResource(viper.GetString("BDP_CONFIG_DIR") + "/spark/spark-driver.json")
 	util.SetPID("spark")
+	log.Println("Spark: Done!")
+
 }
 
 func Status() util.Status {

@@ -1,0 +1,5 @@
+[spark]
+SPARK_WORKERS = 5
+
+[rabbitmq]
+RABBITMQ_NODES = 3

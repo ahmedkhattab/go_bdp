@@ -173,6 +173,8 @@ func Start(config util.Config, forceDeploy bool) {
 	time.Sleep(15 * time.Second)
 	kube.Expose("pod", GetNamenode(), "--port=8020", "--target-port=8020", "--name=namenode")
 	util.SetPID("ambari")
+	log.Println("Ambari: Done!")
+
 }
 
 func Status() util.Status {

@@ -1,7 +1,7 @@
 package main
 
 import (
-	"cod/launcher"
+	"codcli/launcher"
 	"fmt"
 	"log"
 	"net/http"
@@ -18,7 +18,7 @@ func details(w http.ResponseWriter, r *http.Request) {
 	config := util.ConfigStruct()
 	statuses := launcher.ComponentsStatuses()
 	fmt.Println(statuses)
-	t, err := template.ParseFiles("../src/web/static/details.html")
+	t, err := template.ParseFiles("../src/codserver/static/details.html")
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -30,7 +30,7 @@ func details(w http.ResponseWriter, r *http.Request) {
 }
 
 func deploy(w http.ResponseWriter, r *http.Request) {
-	logfile, err := os.Create("../src/web/static/log.out")
+	logfile, err := os.Create("../src/codserver/static/log.out")
 	if err != nil {
 		log.Fatalf("error opening file: %v", err)
 	}
@@ -69,7 +69,7 @@ func deploy(w http.ResponseWriter, r *http.Request) {
 
 func index(w http.ResponseWriter, r *http.Request) {
 	config := util.InitConfigStruct()
-	t, err := template.ParseFiles("../src/web/static/index.html")
+	t, err := template.ParseFiles("../src/codserver/static/index.html")
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -82,7 +82,7 @@ func index(w http.ResponseWriter, r *http.Request) {
 
 func main() {
 	util.SetDefaultConfig()
-	fs := http.FileServer(http.Dir("../src/web/static"))
+	fs := http.FileServer(http.Dir("../src/codserver/static"))
 	http.Handle("/static/", http.StripPrefix("/static/", fs))
 	http.HandleFunc("/", index)
 	http.HandleFunc("/deploy", deploy)

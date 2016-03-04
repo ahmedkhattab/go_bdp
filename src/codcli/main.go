@@ -1,7 +1,7 @@
 package main
 
 import (
-	"cod/launcher"
+	"codcli/launcher"
 	"flag"
 	"fmt"
 	"kube"
@@ -19,13 +19,13 @@ func main() {
 	util.SetDefaultConfig()
 
 	if len(os.Args) == 1 {
-		fmt.Println("usage: decap <command> [<args>]")
+		fmt.Println("usage: cod <command> [<args>]")
 		fmt.Println("Commands: ")
-		fmt.Println("\tstart   starts the cluster")
-		fmt.Println("\tstop    stops the cluster")
+		fmt.Println("\tstart   starts the kubernetes cluster")
+		fmt.Println("\tstop    stops the kubernetes cluster")
 		fmt.Println("\trestart stops the current cluster and restarts a new one")
 		fmt.Println("\treset   removes all deployed components")
-		fmt.Println("\tinfo    lists the cluster info")
+		fmt.Println("\tinfo    displays the cluster info")
 		fmt.Println("\tpods    lists all pods running on the cluster")
 		fmt.Println("\tdeploy  deploys bdp components on a running cluster")
 		return
@@ -86,7 +86,7 @@ func main() {
 			kube.SetContext(*clusterFlag)
 		}
 		config := util.ConfigStruct()
-		fmt.Println(config)
+		//fmt.Println(config)
 		statuses := launcher.LaunchComponents(*allFlag, *forceFlag, config)
 		v := reflect.ValueOf(statuses)
 		for i := 0; i < v.NumField(); i++ {

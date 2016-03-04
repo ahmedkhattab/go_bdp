@@ -86,7 +86,7 @@ func SetDefaultConfig() {
 	viper.SetConfigType("toml")
 	viper.SetConfigName("defaults")
 	viper.AddConfigPath(".")
-	viper.AddConfigPath("../src/cod")
+	viper.AddConfigPath("../src/codcli")
 
 	err := viper.ReadInConfig()
 	if err != nil {

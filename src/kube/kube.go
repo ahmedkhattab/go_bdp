@@ -109,7 +109,6 @@ func PodHostIP(pod string) string {
 
 //PodHostName returns the node name of the input pod
 func PodHostName(pod string) string {
-	fmt.Println(PodNames(pod)[0])
 	out, err := kube("get pod", PodNames(pod)[0], "-o template", "--template={{.spec.nodeName}}").Output()
 	if err != nil {
 		return ""

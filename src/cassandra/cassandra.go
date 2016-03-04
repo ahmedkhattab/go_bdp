@@ -50,6 +50,8 @@ func Start(config util.Config, forceDeploy bool) {
 	}
 	kube.CreateResource(viper.GetString("BDP_CONFIG_DIR") + "/cassandra/cassandra-service.json")
 	util.SetPID("cassandra")
+	log.Println("Cassandra: Done!")
+
 }
 
 func Status() util.Status {
