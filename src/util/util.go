@@ -28,6 +28,7 @@ type Config struct {
 type Status struct {
 	State   bool
 	Message string
+	URL     string
 }
 
 type Statuses struct {
@@ -52,11 +53,11 @@ func InitConfigStruct() Config {
 }
 
 func InitStatusesStruct() Statuses {
-	return Statuses{Spark: Status{false, "Not Running"},
-		Cassandra: Status{false, "Not Running"},
-		Ambari:    Status{false, "Not Running"},
-		Rabbitmq:  Status{false, "Not Running"},
-		Kafka:     Status{false, "Not Running"}}
+	return Statuses{Spark: Status{false, "Not Running", ""},
+		Cassandra: Status{false, "Not Running", ""},
+		Ambari:    Status{false, "Not Running", ""},
+		Rabbitmq:  Status{false, "Not Running", ""},
+		Kafka:     Status{false, "Not Running", ""}}
 }
 
 //ConfigStruct creates an instance of the config structure out of the config

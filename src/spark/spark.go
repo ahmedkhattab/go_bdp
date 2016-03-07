@@ -73,10 +73,11 @@ func Start(config util.Config, forceDeploy bool) {
 }
 
 func Status() util.Status {
-	status := util.Status{false, "Not Running"}
+	status := util.Status{false, "Not Running", ""}
 	if util.IsRunning("spark") {
 		status.State = true
-		status.Message = fmt.Sprintf("Spark UI accessible through http://%s:31314\n", kube.PodPublicIP("spark-master"))
+		status.Message = fmt.Sprintf("Spark UI accessible through ")
+		status.URL = fmt.Sprintf("http://%s:31314", kube.PodPublicIP("spark-master"))
 	}
 	return status
 }

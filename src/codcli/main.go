@@ -91,7 +91,9 @@ func main() {
 		v := reflect.ValueOf(statuses)
 		for i := 0; i < v.NumField(); i++ {
 			if v.Field(i).FieldByName("State").Bool() {
-				fmt.Println(v.Field(i).FieldByName("Message"))
+				fmt.Print(v.Field(i).FieldByName("Message"))
+				fmt.Print(v.Field(i).FieldByName("URL"))
+				fmt.Println("")
 			}
 		}
 	}

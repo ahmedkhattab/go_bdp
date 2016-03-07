@@ -37,6 +37,10 @@ function resetSubmitBtn() {
 }
 
 $(document).ready(function() {
+  $("[data-toggle=popover]")
+    .popover({
+      html: true
+    })
   refreshToggleBtns();
   $('[data-toggle="popover"]').popover()
 

@@ -178,10 +178,11 @@ func Start(config util.Config, forceDeploy bool) {
 }
 
 func Status() util.Status {
-	status := util.Status{false, "Not Running"}
+	status := util.Status{false, "Not Running", ""}
 	if util.IsRunning("ambari") {
 		status.State = true
-		status.Message = fmt.Sprintf("Ambari UI accessible through http://%s:31313\n", kube.PodPublicIP("amb-server"))
+		status.Message = fmt.Sprintf("Ambari UI accessible through ")
+		status.URL = fmt.Sprintf("http://%s:31313", kube.PodPublicIP("amb-server"))
 	}
 	return status
 }

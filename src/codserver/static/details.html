@@ -77,7 +77,7 @@
       <div class="col-md-3 shift">
         <h2>Spark</h2>
         <p class="component-container">
-          <button type="button" class="btn-cstm btn-spark" data-toggle="popover" title="Details" data-content=" {{.statuses.Spark.Message}}">
+          <button type="button" class="btn-cstm btn-spark" data-toggle="popover" title="Details" data-html="true" data-content=" {{.statuses.Spark.Message}}<a href='{{.statuses.Spark.URL}}'>{{.statuses.Spark.URL}}</a>">
             <input type="hidden" name="Spark" value="{{.statuses.Spark.State}}"/>
             <span class="stopped glyphicon glyphicon-ban-circle"></span>
             <span class="checkmark" style="display: none;">
@@ -92,7 +92,7 @@
       <div class="col-md-3 shift">
         <h2>Ambari</h2>
         <p>
-          <button type="button" class="btn-cstm btn-ambari" data-toggle="popover" title="Details" data-content="{{.statuses.Ambari.Message}}">
+          <button type="button" class="btn-cstm btn-ambari" data-toggle="popover" title="Details" data-html="true" data-content="{{.statuses.Ambari.Message}}<a href='{{.statuses.Ambari.URL}}'>{{.statuses.Ambari.URL}}</a>">
             <input type="hidden" name="Ambari" value="{{.statuses.Ambari.State}}"/>
             <span class="stopped glyphicon glyphicon-ban-circle"></span>
             <span class="checkmark" style="display: none;">
@@ -106,7 +106,7 @@
       <div class="col-md-3 shift">
         <h2>Rabbitmq</h2>
         <p>
-          <button type="button" class="btn-cstm btn-rabbitmq"  data-toggle="popover" title="Details" data-content="{{.statuses.Rabbitmq.Message}}">
+          <button type="button" class="btn-cstm btn-rabbitmq"  data-toggle="popover" title="Details" data-html="true" data-content="{{.statuses.Rabbitmq.Message}}<a href='{{.statuses.Rabbitmq.URL}}'>{{.statuses.Rabbitmq.URL}}</a>">
             <input type="hidden"  name="Rabbitmq" value="{{.statuses.Rabbitmq.State}}"/>
               <span class="stopped glyphicon glyphicon-ban-circle"></span>
               <span class="checkmark" style="display: none;">
