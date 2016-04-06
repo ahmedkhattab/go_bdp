@@ -55,7 +55,7 @@ func Start(config util.Config, forceDeploy bool) {
 }
 
 func Status() util.Status {
-	status := util.Status{false, "Not Running", ""}
+	status := util.Status{State: false, Message: "Not Running", URL: ""}
 	if util.IsRunning("cassandra") {
 		status.State = true
 		status.Message = fmt.Sprintf("Cassandra accessible through %s:31317", kube.PodPublicIP("cassandra"))

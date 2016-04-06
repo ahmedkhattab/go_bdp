@@ -3,3 +3,8 @@ SPARK_WORKERS = 3
 
 [rabbitmq]
 RABBITMQ_NODES = 3
+
+[ambari]
+AMBARI_NODES = 5
+AMBARI_BLUEPRINT = "ha-hdfs"
+AMBARI_BLUEPRINT_URL = "https://goo.gl/GRVbkp"

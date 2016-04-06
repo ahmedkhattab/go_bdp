@@ -74,7 +74,7 @@ func Start(config util.Config, forceDeploy bool) {
 }
 
 func Status() util.Status {
-	status := util.Status{false, "Not Running", ""}
+	status := util.Status{State: false, Message: "Not Running", URL: ""}
 	if util.IsRunning("kafka") {
 		status.State = true
 		status.Message = fmt.Sprintf("Kafka accessible through %s:31318", kube.PodPublicIP("kafka"))

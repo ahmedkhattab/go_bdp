@@ -1,6 +1,7 @@
 package main
 
 import (
+	"ambari"
 	"codcli/launcher"
 	"flag"
 	"fmt"
@@ -8,7 +9,6 @@ import (
 	"log"
 	"os"
 	"reflect"
-	"spark"
 	"util"
 
 	"github.com/spf13/viper"
@@ -27,11 +27,16 @@ func main() {
 		fmt.Println("\treset   removes all deployed components")
 		fmt.Println("\tinfo    displays the cluster info")
 		fmt.Println("\tpods    lists all pods running on the cluster")
+		fmt.Println("\trun     runs an application on spark")
 		fmt.Println("\tdeploy  deploys bdp components on a running cluster")
 		return
 	}
 
+	runCommand := flag.NewFlagSet("run", flag.ExitOnError)
 	deployCommand := flag.NewFlagSet("deploy", flag.ExitOnError)
+
+	jarFlag := runCommand.String("jar", "", "")
+	gitFlag := runCommand.String("git", "", "")
 
 	allFlag := deployCommand.Bool("all", false, "")
 	confFlag := deployCommand.String("conf", "", "")
@@ -50,10 +55,14 @@ func main() {
 		deployCommand.Parse(os.Args[2:])
 	case "reset":
 		kube.ResetCluster()
+	case "run":
+		runCommand.Parse(os.Args[2:])
 	case "pods":
 		fmt.Println(kube.GetPods())
 	case "info":
 		fmt.Println(kube.ClusterInfo())
+	case "kube":
+		fmt.Println(kube.ExecOnKube(os.Args[2], os.Args[3:]...))
 	case "test":
 		test()
 	default:
@@ -61,9 +70,22 @@ func main() {
 		os.Exit(2)
 	}
 
+	if runCommand.Parsed() {
+		if len(os.Args[2:]) == 0 {
+			fmt.Println("usage: cod run [<args>]")
+			fmt.Println("args: ")
+			fmt.Println("  -jar	   path to the jar file of the application")
+			fmt.Println("  -git    link to the git repository of the application")
+			os.Exit(2)
+		}
+		if *jarFlag != "" && *gitFlag != "" {
+			launcher.LaunchApplication(*jarFlag, *gitFlag)
+		}
+	}
+
 	if deployCommand.Parsed() {
 		if len(os.Args[2:]) == 0 {
-			fmt.Println("usage: decap deploy [<args>]")
+			fmt.Println("usage: cod deploy [<args>]")
 			fmt.Println("args: ")
 			fmt.Println("  -conf    path to a toml config file")
 			fmt.Println("  -f       force deployment (removes running components first)")
@@ -100,5 +122,5 @@ func main() {
 }
 
 func test() {
-	spark.CleanUp()
+	ambari.GetNamenode()
 }

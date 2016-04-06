@@ -58,14 +58,14 @@ func UpdateHosts(slavePods []string) {
 func createSlaves(configFile string, component string) {
 	slaves := viper.GetInt("ambari.AMBARI_NODES")
 	for v := 1; v <= slaves; v++ {
-		slave := util.Slave{fmt.Sprintf("amb-slave%d", v)}
+		slave := util.Slave{AmbariSlaveName: fmt.Sprintf("amb-slave%d", v)}
 		util.GenerateConfig(configFile, "ambari", slave)
 		kube.CreateResource(filepath.Join(viper.GetString("BDP_CONFIG_DIR"), "tmp", configFile))
 	}
 }
 
 func GetNamenode() string {
-	url := fmt.Sprintf("http://%s:%s/api/v1/clusters/%s/services/HDFS/components/NAMENODE", kube.PodPublicIP("amb-server.service.consul"), "31313", viper.GetString("AMBARI_BLUEPRINT"))
+	url := fmt.Sprintf("http://%s:%s/api/v1/clusters/%s/services/HDFS/components/NAMENODE", kube.PodPublicIP("amb-server.service.consul"), "31313", viper.GetString("ambari.AMBARI_BLUEPRINT"))
 	request, err := http.NewRequest("GET", url, nil)
 	if err != nil {
 		log.Fatalf("GetNamenode: Error creating http request: %s \n", err)
@@ -178,7 +178,7 @@ func Start(config util.Config, forceDeploy bool) {
 }
 
 func Status() util.Status {
-	status := util.Status{false, "Not Running", ""}
+	status := util.Status{State: false, Message: "Not Running", URL: ""}
 	if util.IsRunning("ambari") {
 		status.State = true
 		status.Message = fmt.Sprintf("Ambari UI accessible through ")

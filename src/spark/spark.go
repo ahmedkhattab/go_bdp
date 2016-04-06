@@ -73,11 +73,33 @@ func Start(config util.Config, forceDeploy bool) {
 }
 
 func Status() util.Status {
-	status := util.Status{false, "Not Running", ""}
+	status := util.Status{State: false, Message: "Not Running", URL: ""}
 	if util.IsRunning("spark") {
 		status.State = true
 		status.Message = fmt.Sprintf("Spark UI accessible through ")
 		status.URL = fmt.Sprintf("http://%s:31314", kube.PodPublicIP("spark-master"))
 	}
 	return status
+}
+
+func RunApp(gitRep string, pathToJar string) {
+
+	cloneCmd := "'git clone " + gitRep + "'"
+	_, err := kube.ExecOnPod("spark-driver", cloneCmd)
+	if err != "" {
+		CleanDriver("bdp_apps/")
+	}
+	paramsJoined := ""
+	/*
+		if len(params) > 0 {
+			paramsJoined = strings.Join(params, " ")
+		}*/
+	submitCmd := "'spark-submit " + pathToJar + " " + paramsJoined + "'"
+	kube.ExecOnPod("spark-driver", submitCmd)
+
+}
+
+func CleanDriver(rep string) {
+	rmCmd := "'rm -rf " + rep + "'"
+	kube.ExecOnPod("spark-driver", rmCmd)
 }

@@ -40,6 +40,12 @@ func LaunchComponents(allFlag bool, forceFlag bool, config util.Config) util.Sta
 	return ComponentsStatuses()
 }
 
+func LaunchApplication(jarFlag string, gitFlag string) {
+	if util.IsRunning("spark") {
+		spark.RunApp(gitFlag, jarFlag)
+	}
+}
+
 func ComponentsStatuses() util.Statuses {
 	statuses := util.InitStatusesStruct()
 	statuses.Ambari = ambari.Status()

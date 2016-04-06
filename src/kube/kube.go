@@ -208,16 +208,16 @@ func ScaleController(rcName string, size int) string {
 }
 
 //ExecOnPod executes the input command on a specific pod
-func ExecOnPod(pod string, command string) string {
+func ExecOnPod(pod string, command string) (string, string) {
 	cmd := kube("exec", pod, "--", "/bin/sh", "-c", command)
 	var stderr bytes.Buffer
 	cmd.Stderr = &stderr
 	out, err := cmd.Output()
 	if err != nil {
-		log.Println(err)
 		log.Println(stderr.String())
+		return "", err.Error()
 	}
-	return string(out)
+	return string(out), ""
 }
 
 //StartCluster starts a clean kubernetes cluster
@@ -285,6 +285,18 @@ func Expose(params ...string) string {
 	out, err := cmd.Output()
 	if err != nil {
 		log.Println(stderr.String())
+	}
+	return string(out)
+}
+
+//ExecOnKube passes a cmd to kubectl
+func ExecOnKube(cmd string, args ...string) string {
+	fullCmd := kube(cmd, args...)
+	var stderr bytes.Buffer
+	fullCmd.Stderr = &stderr
+	out, err := fullCmd.Output()
+	if err != nil {
+		log.Fatal(stderr.String())
 	}
 	return string(out)
 }
