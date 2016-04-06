@@ -88,6 +88,7 @@ func RunApp(gitRep string, pathToJar string) {
 	_, err := kube.ExecOnPod("spark-driver", cloneCmd)
 	if err != "" {
 		CleanDriver("bdp_apps/")
+		kube.ExecOnPod("spark-driver", cloneCmd)
 	}
 	paramsJoined := ""
 	/*
