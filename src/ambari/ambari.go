@@ -171,7 +171,9 @@ func Start(config util.Config, forceDeploy bool) {
 
 	log.Println("Ambari: waiting to expose namenode service")
 	time.Sleep(15 * time.Second)
-	kube.Expose("pod", GetNamenode(), "--port=8020", "--target-port=8020", "--name=namenode")
+	namenode := GetNamenode()
+	kube.Label("pods", namenode, "role=namenode")
+	kube.Expose("pod", namenode, "--port=8020", "--target-port=8020", "--name=namenode", "--type=NodePort", "--selector='role=namenode'")
 	util.SetPID("ambari")
 	log.Println("Ambari: Done!")
 

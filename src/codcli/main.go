@@ -122,5 +122,5 @@ func main() {
 }
 
 func test() {
-	ambari.GetNamenode()
+	kube.Expose("pod", ambari.GetNamenode(), "--port=8020", "--target-port=8020", "--name=namenode", "--type=NodePort")
 }

@@ -289,6 +289,18 @@ func Expose(params ...string) string {
 	return string(out)
 }
 
+//Label adds a label to the specified resource
+func Label(rcType string, rcName string, label string) string {
+	cmd := kube("label", rcType, rcName, label)
+	var stderr bytes.Buffer
+	cmd.Stderr = &stderr
+	out, err := cmd.Output()
+	if err != nil {
+		log.Println(stderr.String())
+	}
+	return string(out)
+}
+
 //ExecOnKube passes a cmd to kubectl
 func ExecOnKube(cmd string, args ...string) string {
 	fullCmd := kube(cmd, args...)
