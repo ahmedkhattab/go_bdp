@@ -68,7 +68,7 @@ func deploy(w http.ResponseWriter, r *http.Request) {
 }
 
 func index(w http.ResponseWriter, r *http.Request) {
-	config := util.InitConfigStruct()
+	config := util.ConfigStruct(false)
 	t, err := template.ParseFiles("../src/codserver/static/index.html")
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)

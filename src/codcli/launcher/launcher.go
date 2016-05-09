@@ -15,7 +15,7 @@ import (
 	"github.com/spf13/viper"
 )
 
-func LaunchComponents(allFlag bool, forceFlag bool, config util.Config) util.Statuses {
+func LaunchComponents(allFlag bool, forceFlag bool, config util.Config) map[string]util.Status {
 
 	if kube.ClusterIsUp() {
 		os.Mkdir(filepath.Join(viper.GetString("BDP_CONFIG_DIR"), "tmp"), 0777)
@@ -48,12 +48,12 @@ func LaunchApplication(jarFlag string, gitFlag string, params ...string) {
 	}
 }
 
-func ComponentsStatuses() util.Statuses {
-	statuses := util.InitStatusesStruct()
-	statuses.Ambari = ambari.Status()
-	statuses.Rabbitmq = rabbitmq.Status()
-	statuses.Kafka = kafka.Status()
-	statuses.Spark = spark.Status()
-	statuses.Cassandra = cassandra.Status()
+func ComponentsStatuses() map[string]util.Status {
+	statuses := make(map[string]util.Status)
+	statuses["Ambari"] = ambari.Status()
+	statuses["Rabbitmq"] = rabbitmq.Status()
+	statuses["Kafka"] = kafka.Status()
+	statuses["Spark"] = spark.Status()
+	statuses["Cassandra"] = cassandra.Status()
 	return statuses
 }

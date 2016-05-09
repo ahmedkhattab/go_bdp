@@ -31,39 +31,18 @@ type Status struct {
 	URL     string
 }
 
-type Statuses struct {
-	Ambari    Status
-	Spark     Status
-	Kafka     Status
-	Cassandra Status
-	Rabbitmq  Status
-}
 type Slave struct {
 	AmbariSlaveName string
-}
-
-func InitConfigStruct() Config {
-	return Config{AmbariNodes: viper.GetInt("ambari.AMBARI_NODES"),
-		CassandraNodes:     viper.GetInt("cassandra.CASSANDRA_NODES"),
-		RabbitmqNodes:      viper.GetInt("rabbitmq.RABBITMQ_NODES"),
-		SparkWorkers:       viper.GetInt("spark.SPARK_WORKERS"),
-		KafkaNodes:         viper.GetInt("kafka.KAFKA_NODES"),
-		AmbariBlueprint:    viper.GetString("ambari.AMBARI_BLUEPRINT"),
-		AmbariBlueprintURL: viper.GetString("ambari.AMBARI_BLUEPRINT_URL")}
-}
-
-func InitStatusesStruct() Statuses {
-	return Statuses{Spark: Status{false, "Not Running", ""},
-		Cassandra: Status{false, "Not Running", ""},
-		Ambari:    Status{false, "Not Running", ""},
-		Rabbitmq:  Status{false, "Not Running", ""},
-		Kafka:     Status{false, "Not Running", ""}}
 }
 
 //ConfigStruct creates an instance of the config structure out of the config
 //parameters to be used by the template engine to generate kubernetes resources
 //config files
-func ConfigStruct() Config {
+func ConfigStruct(init ...bool) Config {
+	initFlag := true
+	if len(init) != 0 {
+		initFlag = init[0]
+	}
 	return Config{AmbariNodes: viper.GetInt("ambari.AMBARI_NODES"),
 		CassandraNodes:     viper.GetInt("cassandra.CASSANDRA_NODES"),
 		RabbitmqNodes:      viper.GetInt("rabbitmq.RABBITMQ_NODES"),
@@ -71,11 +50,11 @@ func ConfigStruct() Config {
 		KafkaNodes:         viper.GetInt("kafka.KAFKA_NODES"),
 		AmbariBlueprint:    viper.GetString("ambari.AMBARI_BLUEPRINT"),
 		AmbariBlueprintURL: viper.GetString("ambari.AMBARI_BLUEPRINT_URL"),
-		Ambari:             viper.InConfig("ambari"),
-		Kafka:              viper.InConfig("kafka"),
-		Cassandra:          viper.InConfig("cassandra"),
-		Rabbitmq:           viper.InConfig("rabbitmq"),
-		Spark:              viper.InConfig("spark")}
+		Ambari:             initFlag && viper.InConfig("ambari"),
+		Kafka:              initFlag && viper.InConfig("kafka"),
+		Cassandra:          initFlag && viper.InConfig("cassandra"),
+		Rabbitmq:           initFlag && viper.InConfig("rabbitmq"),
+		Spark:              initFlag && viper.InConfig("spark")}
 }
 
 func (config *Config) SetState(component string, value bool) {

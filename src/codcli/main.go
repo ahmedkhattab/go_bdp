@@ -8,7 +8,6 @@ import (
 	"kube"
 	"log"
 	"os"
-	"reflect"
 	"strconv"
 	"util"
 
@@ -129,11 +128,10 @@ func main() {
 		config := util.ConfigStruct()
 		//fmt.Println(config)
 		statuses := launcher.LaunchComponents(*allFlag, *forceFlag, config)
-		v := reflect.ValueOf(statuses)
-		for i := 0; i < v.NumField(); i++ {
-			if v.Field(i).FieldByName("State").Bool() {
-				fmt.Print(v.Field(i).FieldByName("Message"))
-				fmt.Print(v.Field(i).FieldByName("URL"))
+		for _, status := range statuses {
+			if status.State {
+				fmt.Print(status.Message)
+				fmt.Print(status.URL)
 				fmt.Println("")
 			}
 		}
