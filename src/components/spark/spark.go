@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"kube"
 	"log"
+	"strings"
 	"time"
 	"util"
 
@@ -82,21 +83,25 @@ func Status() util.Status {
 	return status
 }
 
-func RunApp(gitRep string, pathToJar string) {
+func RunApp(gitRep string, pathToJar string, params ...string) {
 
 	cloneCmd := "'git clone " + gitRep + "'"
 	_, err := kube.ExecOnPod("spark-driver", cloneCmd)
 	if err != "" {
 		CleanDriver("bdp_apps/")
+		log.Println("Spark run: waiting to fetch application package")
 		kube.ExecOnPod("spark-driver", cloneCmd)
 	}
 	paramsJoined := ""
-	/*
-		if len(params) > 0 {
-			paramsJoined = strings.Join(params, " ")
-		}*/
-	submitCmd := "'spark-submit " + pathToJar + " " + paramsJoined + "'"
-	kube.ExecOnPod("spark-driver", submitCmd)
+	if len(params) > 0 {
+		paramsJoined = strings.Join(params, " ")
+	}
+	kube.ExecOnPod("spark-driver", "'java -cp ./bdp_apps/HdfsClient/target/HdfsClient-0.0.1-SNAPSHOT-jar-with-dependencies.jar com.hdfs.client.HdfsClient ./bdp_apps/HdfsClient/web-Google.100k.txt.zip'")
+
+	submitCmd := "'spark-submit --executor-cores 1 " + pathToJar + " " + paramsJoined + "'"
+	fmt.Println(submitCmd)
+
+	kube.ExecInteractiveOnPod("spark-driver", submitCmd)
 
 }
 

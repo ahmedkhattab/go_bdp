@@ -1,14 +1,15 @@
 package main
 
 import (
-	"ambari"
 	"codcli/launcher"
+	"components/ambari"
 	"flag"
 	"fmt"
 	"kube"
 	"log"
 	"os"
 	"reflect"
+	"strconv"
 	"util"
 
 	"github.com/spf13/viper"
@@ -34,9 +35,11 @@ func main() {
 
 	runCommand := flag.NewFlagSet("run", flag.ExitOnError)
 	deployCommand := flag.NewFlagSet("deploy", flag.ExitOnError)
+	scaleCommand := flag.NewFlagSet("scale", flag.ExitOnError)
 
 	jarFlag := runCommand.String("jar", "", "")
 	gitFlag := runCommand.String("git", "", "")
+	urlFlag := runCommand.String("url", "", "")
 
 	allFlag := deployCommand.Bool("all", false, "")
 	confFlag := deployCommand.String("conf", "", "")
@@ -57,6 +60,8 @@ func main() {
 		kube.ResetCluster()
 	case "run":
 		runCommand.Parse(os.Args[2:])
+	case "scale":
+		scaleCommand.Parse(os.Args[2:])
 	case "pods":
 		fmt.Println(kube.GetPods())
 	case "info":
@@ -70,16 +75,30 @@ func main() {
 		os.Exit(2)
 	}
 
+	if scaleCommand.Parsed() {
+		if len(os.Args[2:]) == 0 {
+			fmt.Println("usage: cod scale controller-name size")
+			os.Exit(2)
+		}
+		size, err := strconv.Atoi(scaleCommand.Arg(1))
+		if err != nil {
+			fmt.Println("invalide size argument")
+			fmt.Println("usage: cod scale controller-name size")
+			os.Exit(2)
+		}
+		kube.ScaleController(scaleCommand.Arg(0), size)
+	}
 	if runCommand.Parsed() {
 		if len(os.Args[2:]) == 0 {
 			fmt.Println("usage: cod run [<args>]")
 			fmt.Println("args: ")
 			fmt.Println("  -jar	   path to the jar file of the application")
 			fmt.Println("  -git    link to the git repository of the application")
+			fmt.Println("  -url    link for direct download of the application")
 			os.Exit(2)
 		}
-		if *jarFlag != "" && *gitFlag != "" {
-			launcher.LaunchApplication(*jarFlag, *gitFlag)
+		if *jarFlag != "" && (*gitFlag != "" || *urlFlag != "") {
+			launcher.LaunchApplication(*jarFlag, *gitFlag, os.Args[6:]...)
 		}
 	}
 

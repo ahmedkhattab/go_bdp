@@ -1,13 +1,13 @@
 KUBERNETES_PROVIDER = "aws"
 KUBE_AWS_ZONE = "eu-central-1b"
-NUM_MINIONS = 3
+NUM_MINIONS = 4
 MINION_SIZE = "t2.medium"
 MASTER_SIZE = "t2.medium"
 AWS_S3_REGION = "eu-central-1"
 INSTANCE_PREFIX = "k8s"
 AWS_S3_BUCKET = "kh-kube-artifacts"
-MINION_ROOT_DISK_SIZE = 20
-MASTER_ROOT_DISK_SIZE = 12
+MINION_ROOT_DISK_SIZE = 25
+MASTER_ROOT_DISK_SIZE = 20
 KUBE_DIST = "/home/khattab/kubernetes-1.1.2"
 BDP_CONFIG_DIR = "/home/khattab/BDP"
 

@@ -55,8 +55,7 @@ func UpdateHosts(slavePods []string) {
 	}
 }
 
-func createSlaves(configFile string, component string) {
-	slaves := viper.GetInt("ambari.AMBARI_NODES")
+func createSlaves(configFile string, component string, slaves int) {
 	for v := 1; v <= slaves; v++ {
 		slave := util.Slave{AmbariSlaveName: fmt.Sprintf("amb-slave%d", v)}
 		util.GenerateConfig(configFile, "ambari", slave)
@@ -144,7 +143,7 @@ func Start(config util.Config, forceDeploy bool) {
 
 	log.Println("Ambari: launching ambari slaves...")
 
-	createSlaves("amb-slave.json", "ambari")
+	createSlaves("amb-slave.json", "ambari", config.AmbariNodes)
 
 	for {
 		pending := kube.PendingPods()
@@ -165,7 +164,7 @@ func Start(config util.Config, forceDeploy bool) {
 	}
 	UpdateHosts(slavePods)
 
-	log.Printf("Ambari: creating ambari cluster using blueprint: %s", viper.GetString("AMBARI_BLUEPRINT"))
+	log.Printf("Ambari: creating ambari cluster using blueprint: %s", viper.GetString("ambari.AMBARI_BLUEPRINT"))
 	util.GenerateConfig("ambari-shell.json", "ambari", config)
 	kube.CreateResource(viper.GetString("BDP_CONFIG_DIR") + "/tmp/ambari-shell.json")
 
@@ -175,6 +174,7 @@ func Start(config util.Config, forceDeploy bool) {
 	kube.Label("pods", namenode, "role=namenode")
 	kube.Expose("pod", namenode, "--port=8020", "--target-port=8020", "--name=namenode", "--type=NodePort", "--selector='role=namenode'")
 	util.SetPID("ambari")
+	log.Println("Ambari: Namenode exposed on port!" + kube.ServicePublicPort("namenode"))
 	log.Println("Ambari: Done!")
 
 }

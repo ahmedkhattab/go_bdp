@@ -139,6 +139,15 @@ func ServiceIP(service string) string {
 	return string(out)
 }
 
+//ServicePublicPort returns the nodeport of the input service
+func ServicePublicPort(service string) string {
+	out, err := kube("get service", service, "-o=template", "'--template={{(index .spec.ports 0).nodePort}}'").Output()
+	if err != nil {
+		log.Fatal(err)
+	}
+	return string(out)
+}
+
 //PendingPods returns the number of pods with status "Pending"
 func PendingPods() int {
 	pods := kube("get pods")
@@ -214,10 +223,22 @@ func ExecOnPod(pod string, command string) (string, string) {
 	cmd.Stderr = &stderr
 	out, err := cmd.Output()
 	if err != nil {
-		log.Println(stderr.String())
+		//log.Println(stderr.String())
 		return "", err.Error()
 	}
 	return string(out), ""
+}
+
+func ExecInteractiveOnPod(pod string, command string) bool {
+	cmd := kube("exec", pod, "--", "/bin/sh", "-c", command)
+	cmd.Stderr = os.Stderr
+	cmd.Stdout = os.Stdout
+	err := cmd.Run()
+	if err != nil {
+		log.Fatal(err)
+		return false
+	}
+	return true
 }
 
 //StartCluster starts a clean kubernetes cluster

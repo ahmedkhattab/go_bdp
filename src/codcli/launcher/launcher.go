@@ -1,15 +1,15 @@
 package launcher
 
 import (
-	"ambari"
-	"cassandra"
-	"kafka"
+	"components/ambari"
+	"components/cassandra"
+	"components/kafka"
+	"components/rabbitmq"
+	"components/spark"
 	"kube"
 	"log"
 	"os"
 	"path/filepath"
-	"rabbitmq"
-	"spark"
 	"util"
 
 	"github.com/spf13/viper"
@@ -35,14 +35,16 @@ func LaunchComponents(allFlag bool, forceFlag bool, config util.Config) util.Sta
 			cassandra.Start(config, forceFlag)
 		}
 	} else {
-		log.Println("Cluster is not running, run bdp start first")
+		log.Println("Cluster is not running, run codcli start first")
 	}
 	return ComponentsStatuses()
 }
 
-func LaunchApplication(jarFlag string, gitFlag string) {
+func LaunchApplication(jarFlag string, gitFlag string, params ...string) {
 	if util.IsRunning("spark") {
-		spark.RunApp(gitFlag, jarFlag)
+		spark.RunApp(gitFlag, jarFlag, params...)
+	} else {
+		log.Println("Spark is not running, deploy spark first")
 	}
 }
 
