@@ -1,4 +1,4 @@
-# go_bdp
+# go_cod
 
 To get started:
 
